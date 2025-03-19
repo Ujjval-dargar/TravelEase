@@ -597,7 +597,6 @@ VALUES
 INSERT INTO H_Book_Includes (booking_id, hotel_id, check_in_date, check_out_date, room_booked)
 VALUES
 (1, 1, '2025-05-01', '2025-05-03', 1),
-(2, 2, '2025-05-02', '2025-05-04', 2),
 (3, 3, '2025-05-03', '2025-05-05', 1),
 (4, 4, '2025-05-04', '2025-05-06', 1),
 (5, 5, '2025-05-05', '2025-05-07', 2),
@@ -629,7 +628,6 @@ VALUES
 
 INSERT INTO I_Book_Includes (booking_id, itinerary_id, itinerary_start_date)
 VALUES
-(1, 1, '2025-06-01'),
 (2, 2, '2025-06-02'),
 (3, 3, '2025-06-03'),
 (4, 4, '2025-06-04'),
