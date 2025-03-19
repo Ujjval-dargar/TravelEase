@@ -243,6 +243,12 @@ VALUES
 (29, 29, 'CPN029', 'Airplane', 'Confirmed', '2025-02-07'),
 (30, 30, NULL, 'Train', 'Confirmed', '2025-02-08'),
 
+(1, 1, 'CPN21', 'Train', 'Pending', '2025-04-10'),
+(2, 2, 'CPN20', 'Airplane', 'Confirmed', '2025-11-11'),
+(3, 3, NULL, 'Train', 'Confirmed', '2025-05-12'),
+(4, 4, 'CPN004', 'Train', 'Cancelled', '2025-07-13'),
+(5, 5, 'CPN005', 'Airplane', 'Pending', '2025-03-14');
+
 
 INSERT INTO Airplane (airplane_id, name, capacity, provider_id)
 VALUES
