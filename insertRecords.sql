@@ -596,6 +596,7 @@ VALUES
 (34, 30, 1);
 INSERT INTO H_Book_Includes (booking_id, hotel_id, check_in_date, check_out_date, room_booked)
 VALUES
+
 (1, 1, '2025-05-01', '2025-05-03', 1),
 (3, 3, '2025-05-03', '2025-05-05', 1),
 (4, 4, '2025-05-04', '2025-05-06', 1),
