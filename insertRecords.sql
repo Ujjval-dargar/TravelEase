@@ -40,7 +40,6 @@ VALUES
 ('Nipun', 'Aggarwal', 'nipun@iiitd.ac.in', '9468093855', 'TopAdmin@1'),
 ('Ujjval', 'Dargar', 'ujjval23564@iiitd.ac.in', '9876600004', 'TopAdmin@3');
 
-
 INSERT INTO TourismAgency (name, location, email, mobile_number, password)
 VALUES
 ('Incredible India Travels', 'New Delhi', 'contact@incredibleindia.in', '9876700001', 'Agency@123'),
