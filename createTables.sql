@@ -1,3 +1,4 @@
+DROP DATABASE IF EXISTS TravelEase;
 CREATE DATABASE TravelEase;
 USE TravelEase;
 
@@ -7,8 +8,8 @@ CREATE TABLE Customer (
 	first_name VARCHAR(50) NOT NULL,
 	last_name VARCHAR(50),
 
-	email VARCHAR(255),
-	mobile_number VARCHAR(20),
+	email VARCHAR(255) UNIQUE,
+	mobile_number VARCHAR(20) UNIQUE,
 
 	password VARCHAR(25) NOT NULL,
 
@@ -22,8 +23,8 @@ CREATE TABLE Admin (
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50),
 
-    email VARCHAR(255),
-    mobile_number VARCHAR(20),
+    email VARCHAR(255) UNIQUE,
+    mobile_number VARCHAR(20) UNIQUE,
 
     password VARCHAR(25) NOT NULL,
    
@@ -36,8 +37,8 @@ CREATE TABLE TourismAgency (
     name VARCHAR(100) NOT NULL,
     location VARCHAR(255) NOT NULL,
 
-    email VARCHAR(255),
-    mobile_number VARCHAR(20),
+    email VARCHAR(255) UNIQUE,
+    mobile_number VARCHAR(20) UNIQUE,
 
     password VARCHAR(25) NOT NULL,
 
@@ -67,8 +68,8 @@ CREATE TABLE TransportProvider (
 
     name VARCHAR(100) NOT NULL,
 
-    email VARCHAR(255),
-    mobile_number VARCHAR(20),
+    email VARCHAR(255) UNIQUE,
+    mobile_number VARCHAR(20) UNIQUE,
 
     service_type ENUM('Train', 'Airplane') NOT NULL,
 
@@ -95,7 +96,7 @@ CREATE TABLE Coupon (
 CREATE TABLE Booking (
     booking_id INT AUTO_INCREMENT PRIMARY KEY,
     customer_id INT NOT NULL,
-    payment_id INT NOT NULL,
+    payment_id INT NOT NULL UNIQUE,
     coupon_code VARCHAR(10),
 
     transport_type ENUM('Train', 'Airplane'),
@@ -146,8 +147,8 @@ CREATE TABLE AccommodationProvider (
 
     name VARCHAR(100) NOT NULL,
 
-    email VARCHAR(255),
-    mobile_number VARCHAR(20),
+    email VARCHAR(255) UNIQUE,
+    mobile_number VARCHAR(20) UNIQUE,
 
     password VARCHAR(25) NOT NULL,
 
@@ -161,8 +162,8 @@ CREATE TABLE Hotel (
     location VARCHAR(100) NOT NULL,
     price_per_night DECIMAL(10,2) NOT NULL,
 
-    email VARCHAR(255),
-    mobile_number VARCHAR(20),
+    email VARCHAR(255) UNIQUE,
+    mobile_number VARCHAR(20) UNIQUE,
 
     total_rooms INT NOT NULL,
 
