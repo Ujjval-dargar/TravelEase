@@ -21,3 +21,14 @@ SELECT * FROM Itinerary NATURAL JOIN (SELECT * FROM I_Book_Includes WHERE Bookin
 
 --  Hotel Details from a Booking ID
 SELECT * FROM Hotel NATURAL JOIN (SELECT * FROM H_Book_Includes WHERE Booking_ID = 1) AS B;
+
+-- Rooms Available
+SELECT total_rooms - COALESCE(occupied_rooms, 0) as rooms_available
+FROM 
+(SELECT total_rooms FROM Hotel WHERE hotel_id = 1) as h1, 
+(SELECT SUM(room_booked) as occupied_rooms
+FROM H_Book_Includes
+WHERE hotel_id = 1
+AND ( check_in_date BETWEEN '2025-04-28' AND '2025-04-29' 
+	OR check_out_date BETWEEN '2025-04-28' AND '2025-04-29'  ) 
+) as h2;
