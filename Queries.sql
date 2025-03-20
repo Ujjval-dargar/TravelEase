@@ -1,3 +1,4 @@
+
 -- Login - Customer
 -- customer_email = "rahul.sharma@example.in" 
 -- customer_password = "Rahul@123"
@@ -53,3 +54,6 @@ WHERE departure_date = '2025-04-01' AND departure_location = 'Surat' AND arrival
 SELECT * , TIMESTAMPDIFF ( minute, CONCAT(departure_date, " ", departure_time), CONCAT(arrival_date, " ", arrival_time) ) AS 'travel_time (min)' 
 FROM A_Route_Follows NATURAL JOIN AirplaneRoute NATURAL JOIN Airplane
 WHERE departure_date = '2025-03-01' AND departure_location = 'Mumbai' AND arrival_location = 'New Delhi';
+
+-- Get coupons
+SELECT * FROM Coupon WHERE expiry_date > CURDATE();
