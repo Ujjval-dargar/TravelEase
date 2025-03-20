@@ -254,7 +254,6 @@ VALUES
 (4, 34, 'CPN004', 'Train', 'Cancelled', '2025-07-13'),
 (5, 35, 'CPN005', 'Airplane', 'Pending', '2025-03-14');
 
-
 INSERT INTO Airplane (airplane_id, name, capacity, provider_id)
 VALUES
 ('AI001', 'Air India Express 101', 180, 1),
