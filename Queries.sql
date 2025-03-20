@@ -1,4 +1,3 @@
-
 -- Login - Customer
 -- customer_email = "rahul.sharma@example.in" 
 -- customer_password = "Rahul@123"
