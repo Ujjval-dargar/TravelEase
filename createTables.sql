@@ -203,7 +203,8 @@ CREATE TABLE A_Route_Follows (
 
     airplane_id VARCHAR(10) NOT NULL,
 
-    FOREIGN KEY (airplane_id) REFERENCES Airplane(airplane_id)
+    FOREIGN KEY (airplane_id) REFERENCES Airplane(airplane_id),
+    FOREIGN KEY (route_id) REFERENCES AirplaneRoute(route_id)
 );
 
 CREATE TABLE T_Route_Follows (
@@ -221,7 +222,8 @@ CREATE TABLE T_Route_Follows (
 
     train_id VARCHAR(10) NOT NULL,
 
-    FOREIGN KEY (train_id) REFERENCES Train(train_id)
+    FOREIGN KEY (train_id) REFERENCES Train(train_id),
+    FOREIGN KEY (route_id) REFERENCES TrainRoute(route_id)
 );
 
 CREATE TABLE A_Book_Includes (
