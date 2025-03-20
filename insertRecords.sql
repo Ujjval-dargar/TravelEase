@@ -458,7 +458,15 @@ VALUES
 INSERT INTO Reviews (comment, rating, booking_id, item_type, item_id)
 VALUES
 ('Excellent service and experience', 5, 1, 'Hotel', 1),
+('Okay service and experience', 4, 1, 'Hotel', 1),
+('Bad service and experience', 3, 1, 'Hotel', 1),
+('Worst service and experience', 2, 1, 'Hotel', 1),
+
 ('Good value for money', 4, 2, 'Itinerary', 2),
+('Okay value for money', 3, 2, 'Itinerary', 2),
+('Bad value for money', 2, 2, 'Itinerary', 2),
+('Poor value for money', 1, 2, 'Itinerary', 2),
+
 ('Enjoyed the tour thoroughly', 5, 3, 'Hotel', 2),
 ('Satisfactory experience', 3, 4, 'Itinerary', 4),
 ('Not up to the mark', 2, 5, 'Hotel', 3),
@@ -523,7 +531,7 @@ VALUES
 
 INSERT INTO T_Route_Follows (route_id, price, available_seats, arrival_time, arrival_date, departure_time, departure_date, train_id)
 VALUES
-(01, 500.00, 800, '06:00:00', '2025-04-01', '03:00:00', '2025-04-01', 'IR001'),
+(01, 500.00, 800, '06:30:00', '2025-04-01', '03:00:00', '2025-04-01', 'IR001'),
 (02, 550.00, 750, '07:00:00', '2025-04-02', '04:00:00', '2025-04-02', 'IR002'),
 (03, 600.00, 700, '08:00:00', '2025-04-03', '05:00:00', '2025-04-03', 'IR003'),
 (04, 650.00, 680, '09:00:00', '2025-04-04', '06:00:00', '2025-04-04', 'IR004'),
@@ -596,7 +604,6 @@ VALUES
 (34, 30, 1);
 INSERT INTO H_Book_Includes (booking_id, hotel_id, check_in_date, check_out_date, room_booked)
 VALUES
-
 (1, 1, '2025-05-01', '2025-05-03', 1),
 (3, 3, '2025-05-03', '2025-05-05', 1),
 (4, 4, '2025-05-04', '2025-05-06', 1),

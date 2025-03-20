@@ -22,6 +22,12 @@ SELECT * FROM Itinerary NATURAL JOIN (SELECT * FROM I_Book_Includes WHERE Bookin
 --  Hotel Details from a Booking ID
 SELECT * FROM Hotel NATURAL JOIN (SELECT * FROM H_Book_Includes WHERE Booking_ID = 1) AS B;
 
+-- Reviews for Hotel from Hotel ID
+SELECT * FROM Reviews WHERE item_id = 1 AND item_type = 'Hotel';
+
+-- Reviews for Itinerary from Itinerary ID
+SELECT * FROM Reviews WHERE item_id = 2 AND item_type = 'Itinerary';
+
 -- Rooms Available from start date, end date, hotel id
 SELECT total_rooms - COALESCE(occupied_rooms, 0) as rooms_available
 FROM 
@@ -29,15 +35,9 @@ FROM
 (SELECT SUM(room_booked) as occupied_rooms
 FROM H_Book_Includes
 WHERE hotel_id = 1
-AND ( check_in_date BETWEEN '2025-04-28' AND '2025-04-29' 
-	OR check_out_date BETWEEN '2025-04-28' AND '2025-04-29'  ) 
+AND ( check_in_date BETWEEN '2025-04-29' AND '2025-05-02' 
+	OR check_out_date BETWEEN '2025-04-29' AND '2025-05-02'  ) 
 ) as h2;
-
--- Reviews for Hotel from Hotel ID
-SELECT * FROM Reviews WHERE item_id = 1 AND item_type = 'Hotel';
-
--- Reviews for Itinerary from Itinerary ID
-SELECT * FROM Reviews WHERE item_id = 2 AND item_type = 'Itinerary';
 
 -- Average rating and number of reviews for Hotel ID 
 SELECT AVG(rating), COUNT(rating) FROM Reviews WHERE item_id = 1 AND item_type = 'Hotel';
@@ -45,3 +45,12 @@ SELECT AVG(rating), COUNT(rating) FROM Reviews WHERE item_id = 1 AND item_type =
 -- Average rating and number of reviews for Itinerary ID 
 SELECT AVG(rating), COUNT(rating) FROM Reviews WHERE item_id = 2 AND item_type = 'Itinerary';
 
+-- Find all trains for arrival location, departure location, departure date
+SELECT * , TIMESTAMPDIFF ( minute, CONCAT(departure_date, " ", departure_time), CONCAT(arrival_date, " ", arrival_time) ) AS 'travel_time (min)' 
+FROM T_Route_Follows NATURAL JOIN TrainRoute NATURAL JOIN Train
+WHERE departure_date = '2025-04-01' AND departure_location = 'Surat' AND arrival_location = 'Mumbai';
+
+-- Find all airplane for arrival location, departure location, departure date
+SELECT * , TIMESTAMPDIFF ( minute, CONCAT(departure_date, " ", departure_time), CONCAT(arrival_date, " ", arrival_time) ) AS 'travel_time (min)' 
+FROM A_Route_Follows NATURAL JOIN AirplaneRoute NATURAL JOIN Airplane
+WHERE departure_date = '2025-03-01' AND departure_location = 'Mumbai' AND arrival_location = 'New Delhi';
