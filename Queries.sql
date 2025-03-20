@@ -11,13 +11,16 @@ SELECT * FROM Booking WHERE Customer_ID = 1;
 SELECT * FROM Payment WHERE Payment_ID = (SELECT Payment_ID FROM Booking WHERE Booking_ID = 1);
 
 -- Airplane Details from a Booking ID
-SELECT * FROM A_Route_Follows NATURAL JOIN A_Book_Includes NATURAL JOIN AirplaneRoute NATURAL JOIN Airplane WHERE Booking_ID = 1;
+SELECT *, TIMESTAMPDIFF ( minute, CONCAT(departure_date, " ", departure_time), CONCAT(arrival_date, " ", arrival_time) ) AS 'travel_time (min)' 
+FROM A_Route_Follows NATURAL JOIN A_Book_Includes NATURAL JOIN AirplaneRoute NATURAL JOIN Airplane WHERE Booking_ID = 1;
 
 -- Train Details from a Booking ID
-SELECT * FROM T_Route_Follows NATURAL JOIN T_Book_Includes NATURAL JOIN TrainRoute NATURAL JOIN Train WHERE Booking_ID = 2;
+SELECT * , TIMESTAMPDIFF ( minute, CONCAT(departure_date, " ", departure_time), CONCAT(arrival_date, " ", arrival_time) ) AS 'travel_time (min)' 
+FROM T_Route_Follows NATURAL JOIN T_Book_Includes NATURAL JOIN TrainRoute NATURAL JOIN Train WHERE Booking_ID = 2;
 
 -- Itinerary Details from a Booking ID
-SELECT * FROM Itinerary NATURAL JOIN I_Book_Includes WHERE Booking_ID = 2;
+SELECT * , DATE_ADD( itinerary_start_date, INTERVAL duration_day DAY ) as itinerary_end_date 
+FROM Itinerary NATURAL JOIN I_Book_Includes WHERE Booking_ID = 2;
 
 --  Hotel Details from a Booking ID
 SELECT * FROM Hotel NATURAL JOIN H_Book_Includes WHERE Booking_ID = 1;
@@ -56,4 +59,4 @@ FROM A_Route_Follows NATURAL JOIN AirplaneRoute NATURAL JOIN Airplane
 WHERE departure_date = '2025-03-01' AND departure_location = 'Mumbai' AND arrival_location = 'New Delhi';
 
 -- Get coupons
-SELECT * FROM Coupon WHERE expiry_date > CURDATE();
+SELECT * FROM Coupon WHERE expiry_date > CURDATE() ORDER BY discount_percentage DESC;
