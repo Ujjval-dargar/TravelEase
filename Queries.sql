@@ -11,16 +11,16 @@ SELECT * FROM Booking WHERE Customer_ID = 1;
 SELECT * FROM Payment WHERE Payment_ID = (SELECT Payment_ID FROM Booking WHERE Booking_ID = 1);
 
 -- Airplane Details from a Booking ID
-SELECT * FROM A_Route_Follows NATURAL JOIN  (SELECT * FROM A_Book_Includes WHERE Booking_ID = 1) AS B NATURAL JOIN AirplaneRoute NATURAL JOIN Airplane;
+SELECT * FROM A_Route_Follows NATURAL JOIN A_Book_Includes NATURAL JOIN AirplaneRoute NATURAL JOIN Airplane WHERE Booking_ID = 1;
 
 -- Train Details from a Booking ID
-SELECT * FROM T_Route_Follows NATURAL JOIN  (SELECT * FROM T_Book_Includes WHERE Booking_ID = 2) AS B NATURAL JOIN TrainRoute NATURAL JOIN Train;
+SELECT * FROM T_Route_Follows NATURAL JOIN T_Book_Includes NATURAL JOIN TrainRoute NATURAL JOIN Train WHERE Booking_ID = 2;
 
 -- Itinerary Details from a Booking ID
-SELECT * FROM Itinerary NATURAL JOIN (SELECT * FROM I_Book_Includes WHERE Booking_ID = 2) AS B ;
+SELECT * FROM Itinerary NATURAL JOIN I_Book_Includes WHERE Booking_ID = 2;
 
 --  Hotel Details from a Booking ID
-SELECT * FROM Hotel NATURAL JOIN (SELECT * FROM H_Book_Includes WHERE Booking_ID = 1) AS B;
+SELECT * FROM Hotel NATURAL JOIN H_Book_Includes WHERE Booking_ID = 1;
 
 -- Reviews for Hotel from Hotel ID
 SELECT * FROM Reviews WHERE item_id = 1 AND item_type = 'Hotel';
