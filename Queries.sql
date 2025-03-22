@@ -32,15 +32,14 @@ SELECT * FROM Reviews WHERE item_id = 1 AND item_type = 'Hotel';
 SELECT * FROM Reviews WHERE item_id = 2 AND item_type = 'Itinerary';
 
 -- Rooms Available from start date, end date, hotel id
-SELECT total_rooms - COALESCE(occupied_rooms, 0) as rooms_available
+SELECT 
+    h.total_rooms - COALESCE(SUM(hbi.room_booked), 0) AS available_rooms
 FROM 
-(SELECT total_rooms FROM Hotel WHERE hotel_id = 1) as h1, 
-(SELECT SUM(room_booked) as occupied_rooms
-FROM H_Book_Includes
-WHERE hotel_id = 1
-AND ( check_in_date BETWEEN '2025-04-29' AND '2025-05-02' 
-	OR check_out_date BETWEEN '2025-04-29' AND '2025-05-02'  ) 
-) as h2;
+    Hotel h
+LEFT JOIN 
+    H_Book_Includes hbi ON h.hotel_id = hbi.hotel_id
+WHERE 
+    h.hotel_id = 1 AND hbi.check_in_date <= '2025-05-02' AND hbi.check_out_date >= '2025-04-29';
 
 -- Average rating and number of reviews for Hotel ID 
 SELECT AVG(rating), COUNT(rating) FROM Reviews WHERE item_id = 1 AND item_type = 'Hotel';
