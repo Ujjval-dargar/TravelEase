@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Payment Page</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      background-color: #f2f2f2;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      margin-bottom: 1rem;
+    }
+
+    .item {
+      font-size: 1.2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .payment-methods label {
+      display: block;
+      margin: 0.5rem 0;
+    }
+
+    .buttons {
+      margin-top: 2rem;
+    }
+
+    .btn {
+      padding: 0.7rem 1.2rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-right: 1rem;
+    }
+
+    .confirm {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .cancel {
+      background-color: #dc3545;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Payment</h2>
+    <div class="item" id="item-name">Loading item...</div>
+
+    <div id="payment-form">
+      <div class="payment-methods">
+        <label><input type="radio" name="method" value="credit" checked> Credit/Debit Card</label>
+        <label><input type="radio" name="method" value="upi"> UPI</label>
+        <label><input type="radio" name="method" value="paypal"> PayPal</label>
+      </div>
+
+      <div class="buttons">
+        <button type="button" class="btn confirm" onclick="confirmPayment()">Confirm Payment</button>
+        <button type="button" class="btn cancel" onclick="cancel()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Extract item from URL
+    const params = new URLSearchParams(window.location.search);
+    const item = params.get("item");
+
+    document.getElementById("item-name").textContent = item ? `Paying for: ${item}` : "No item specified";
+
+    function confirmPayment() {
+      const method = document.querySelector('input[name="method"]:checked').value;
+      alert(`Payment confirmed for "${item}" via ${method.toUpperCase()}`);
+      // Here you could redirect to a real payment gateway
+    }
+
+    function cancel() {
+      window.history.back(); // Or use: window.location.href = "booking.html";
+    }
+  </script>
+</body>
+</html>
