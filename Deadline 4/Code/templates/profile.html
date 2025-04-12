@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='login_style.css') }}">
+    <title>Customer Profile</title>
+</head>
+<body>
+    <div class="container profile-container">
+    <h1>Welcome, {{ user.first_name }} {{ user.last_name }}</h1>
+
+    <div class="profile-info">
+        <p><strong>Customer ID:</strong> {{ user.customer_id }}</p>
+        <p><strong>Email:</strong> {{ user.email or '—' }}</p>
+        <p><strong>Mobile:</strong> {{ user.mobile_number or '—' }}</p>
+    </div>
+
+    <button onclick="window.location.href='/'">Log Out</button>
+  </div>
+</body>
+</html>
