@@ -1,22 +1,50 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <link rel="stylesheet" href="{{ url_for('static', filename='login_style.css') }}">
     <title>Customer Profile</title>
+    <style>
+        body { font-family: sans-serif; margin: 40px; }
+        .profile-card { border: 1px solid #ccc; padding: 20px; border-radius: 10px; width: 400px; }
+        .history { margin-top: 30px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        th { background-color: #f4f4f4; }
+    </style>
 </head>
 <body>
-    <div class="container profile-container">
-    <h1>Welcome, {{ user.first_name }} {{ user.last_name }}</h1>
-
-    <div class="profile-info">
-        <p><strong>Customer ID:</strong> {{ user.customer_id }}</p>
-        <p><strong>Email:</strong> {{ user.email or '—' }}</p>
-        <p><strong>Mobile:</strong> {{ user.mobile_number or '—' }}</p>
+    <h1>Welcome, {{ customer.first_name }} {{ customer.last_name }}</h1>
+    
+    <div class="profile-card">
+        <p><strong>Email:</strong> {{ customer.email or 'N/A' }}</p>
+        <p><strong>Mobile:</strong> {{ customer.mobile_number or 'N/A' }}</p>
     </div>
 
-    <button onclick="window.location.href='/'">Log Out</button>
-  </div>
+    <div class="history">
+        <h2>Booking History</h2>
+        {% if bookings %}
+            <table>
+                <tr>
+                    <th>ID</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Amount</th>
+                    <th>Payment</th>
+                    <th>Date</th>
+                </tr>
+                {% for b in bookings %}
+                <tr>
+                    <td>{{ b.booking_id }}</td>
+                    <td>{{ b.booking_type }}</td>
+                    <td>{{ b.status }}</td>
+                    <td>₹{{ b.amount }}</td>
+                    <td>{{ b.payment_status }} ({{ b.payment_method }})</td>
+                    <td>{{ b.booking_date }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        {% else %}
+            <p>No bookings yet.</p>
+        {% endif %}
+    </div>
 </body>
 </html>

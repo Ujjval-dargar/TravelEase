@@ -99,7 +99,7 @@ CREATE TABLE Booking (
     payment_id INT NOT NULL UNIQUE,
     coupon_code VARCHAR(10),
 
-    transport_type ENUM('Train', 'Airplane'),
+    booking_type ENUM('Hotel', 'Itinerary', 'Train', 'Airplane'),
     status ENUM('Confirmed', 'Pending', 'Cancelled') NOT NULL,
     booking_date DATE NOT NULL,
 

@@ -250,3 +250,32 @@ footer a {
     color: #3c97bf;
     text-decoration: none;
 }
+
+/* User Type Select Styling */
+select {
+	background-color: #eee;
+	border: none;
+	padding: 12px 15px;
+	margin: 8px 0 20px 0;
+	width: 100%;
+	border-radius: 20px;
+	font-family: 'Montserrat', sans-serif;
+	font-size: 14px;
+	appearance: none;
+	color: #333;
+	box-shadow: inset 0 0 3px rgba(0,0,0,0.1);
+}
+
+/* Dropdown Arrow */
+select {
+	background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='10' viewBox='0 0 14 10'%3E%3Cpath fill='%23333' d='M7 10L0 0h14z'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 10px center;
+	background-size: 10px;
+}
+
+/* Fixing select focus & interaction */
+select:focus {
+	outline: none;
+	box-shadow: 0 0 5px rgba(255, 75, 43, 0.5);
+}
