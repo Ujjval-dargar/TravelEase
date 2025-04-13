@@ -1306,11 +1306,13 @@ def payment_page():
 def confirm_payment():
     # Get payment data from the frontend
     payment_data = request.get_json()
+    idd =payment_data['id']
     user_id = payment_data['user_id']
     amount = payment_data['amount']
     payment_method = payment_data['payment_method']
     payment_status = payment_data['payment_status']
     transport_type = payment_data['transport_type']
+    count=payment_data['count']
     status = payment_data['status']
     booking_date = payment_data['booking_date']
 
@@ -1329,32 +1331,65 @@ def confirm_payment():
         payment_id = cursor.lastrowid
 
         # Insert into Booking table
-        print(transport_type)
         cursor.execute('''
             INSERT INTO Booking (customer_id, payment_id, transport_type, status, booking_date)
             VALUES (%s, %s, %s, %s, %s)
         ''', (user_id, payment_id, transport_type, status, booking_date))
         connection.commit()
+        if transport_type=="train":
+            # Get the last inserted booking_id
+            booking_id = cursor.lastrowid
 
-        # Get the last inserted booking_id
-        booking_id = cursor.lastrowid
+            # Insert into T_Book_Includes table
+            trf_pkey = idd  # Example, replace with actual trf_pkey value
+            tickets_booked = count  # Example, you can update this dynamically based on the actual booking
 
-        # Insert into T_Book_Includes table
-        # Assuming 'trf_pkey' is passed as part of the request, or you can query it from the T_Route_Follows table
-        trf_pkey = 1  # Example, replace with actual trf_pkey value
-        tickets_booked = 1  # Example, you can update this dynamically based on the actual booking
+            cursor.execute('''
+                INSERT INTO T_Book_Includes (booking_id, trf_pkey, tickets_booked)
+                VALUES (%s, %s, %s)
+            ''', (booking_id, trf_pkey, tickets_booked))
+            connection.commit()
 
-        cursor.execute('''
-            INSERT INTO T_Book_Includes (booking_id, trf_pkey, tickets_booked)
-            VALUES (%s, %s, %s)
-        ''', (booking_id, trf_pkey, tickets_booked))
-        connection.commit()
+            cursor.close()
+            connection.close()
 
-        cursor.close()
-        connection.close()
+            return jsonify({"success": True})
 
-        return jsonify({"success": True})
+        elif transport_type=="airplane":
+            # Get the last inserted booking_id
+            booking_id = cursor.lastrowid
 
+            # Insert into T_Book_Includes table
+            arf_pkey = idd  # Example, replace with actual trf_pkey value
+            tickets_booked = count  # Example, you can update this dynamically based on the actual booking
+
+            cursor.execute('''
+                INSERT INTO A_Book_Includes (booking_id, arf_pkey, tickets_booked)
+                VALUES (%s, %s, %s)
+            ''', (booking_id, arf_pkey, tickets_booked))
+            connection.commit()
+
+            cursor.close()
+            connection.close()
+
+            return jsonify({"success": True})
+        elif transport_type=="itinerary":
+            # Get the last inserted booking_id
+            booking_id = cursor.lastrowid
+
+            # Insert into T_Book_Includes table
+            itinerary_id = idd  # Example, replace with actual trf_pkey valuedynamically based on the actual booking
+
+            cursor.execute('''
+                INSERT INTO I_Book_Includes (booking_id, itinerary_id, itinerary_start_date)
+                VALUES (%s, %s, %s)
+            ''', (booking_id, itinerary_id, booking_date))
+            connection.commit()
+
+            cursor.close()
+            connection.close()
+
+            return jsonify({"success": True})
     except Exception as e:
         print(str(e))
         return jsonify({"success": False, "error": str(e)})

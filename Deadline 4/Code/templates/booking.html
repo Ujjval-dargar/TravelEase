@@ -30,6 +30,24 @@
       color: #333;
     }
 
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: bold;
+    }
+
+    select {
+      width: 100%;
+      padding: 0.5rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
     .btn {
       padding: 0.7rem 1.2rem;
       border: none;
@@ -56,9 +74,21 @@
     <h2>Confirm Your Booking</h2>
     <div class="item" id="item-name">Loading item...</div>
 
+    <div class="form-group">
+      <label id="count-label" for="count-label">Number of Rooms</label>
+      <select id="count" name="count">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+      </select>
+    </div>
+
     <button class="btn pay" onclick="payNow()">Pay Now</button>
     <button class="btn cancel" onclick="cancel()">Cancel</button>
   </div>
+  
 
   <script src="{{ url_for('static', filename='booking_script.js') }}"></script>
 </body>
