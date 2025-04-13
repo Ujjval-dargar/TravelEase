@@ -1,5 +1,18 @@
 const params = new URLSearchParams(window.location.search);
 const type = params.get("type");
+const countLabel = document.getElementById("count-label");
+
+
+if (countLabel) {
+  if (type === "hotel") {
+    countLabel.textContent = "Number of Rooms";
+  } else if (type=="itinerary"){
+    countLabel.remove();
+    document.getElementById("count").remove()
+  } else{
+    countLabel.textContent = "Number of Tickets";
+  }
+}
 
 if (type == "train") {
   const trainId = params.get("trf_pkey");
@@ -50,7 +63,7 @@ if (type == "train") {
             <td style="padding: 8px;">${data.available_seats}</td>
           </tr>
           <tr>
-            <th style="text-align: left; padding: 8px;">Price</th>
+            <th style="text-align: left; padding: 8px;">Price / Ticket</th>
             <td style="padding: 8px;">₹${data.price.toFixed(2)}</td>
           </tr>
           
@@ -65,9 +78,9 @@ if (type == "train") {
       alert("Booking details not loaded yet.");
       return;
     }
-
+    const ticketCount = document.getElementById("count").value;
     const encodedItem = encodeURIComponent(itemName);
-    window.location.href = `/payment?type=train&item=${encodedItem}&price=${itemPrice}&user_id=${encodeURIComponent(user_id)}`;
+    window.location.href = `/payment?type=train&item=${encodedItem}&price=${itemPrice*parseInt(ticketCount)}&id=${trainId}&ticketcount=${ticketCount}&user_id=${encodeURIComponent(user_id)}`;
   }
 
   function cancel() {
@@ -76,6 +89,7 @@ if (type == "train") {
 }
 
 if (type == "airplane") {
+
   const airplaneId = params.get("arf_pkey");
   const user_id = params.get("user_id");
 
@@ -124,7 +138,7 @@ if (type == "airplane") {
             <td style="padding: 8px;">${data.available_seats}</td>
           </tr>
           <tr>
-            <th style="text-align: left; padding: 8px;">Price</th>
+            <th style="text-align: left; padding: 8px;">Price / Ticket</th>
             <td style="padding: 8px;">₹${data.price.toFixed(2)}</td>
           </tr>
           
@@ -139,9 +153,9 @@ if (type == "airplane") {
       alert("Booking details not loaded yet.");
       return;
     }
-
+    const ticketCount = document.getElementById("count").value;
     const encodedItem = encodeURIComponent(itemName);
-    window.location.href = `/payment?type=airplane&item=${encodedItem}&price=${itemPrice}&user_id=${encodeURIComponent(user_id)}`;
+    window.location.href = `/payment?type=airplane&item=${encodedItem}&price=${itemPrice*parseInt(ticketCount)}&id=${airplaneId}&ticketcount=${ticketCount}&user_id=${encodeURIComponent(user_id)}`;
   }
 
   function cancel() {
@@ -202,7 +216,7 @@ if (type == "itinerary") {
     }
 
     const encodedItem = encodeURIComponent(itemName);
-    window.location.href = `/payment?type=Itinerary&item=${encodedItem}&price=${itemPrice}&user_id=${encodeURIComponent(user_id)}`;
+    window.location.href = `/payment?type=Itinerary&item=${encodedItem}&price=${itemPrice}&id=${itinerary_id}&user_id=${encodeURIComponent(user_id)}`;
   }
 
   function cancel() {

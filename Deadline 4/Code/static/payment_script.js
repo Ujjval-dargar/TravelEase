@@ -2,9 +2,10 @@
 const params = new URLSearchParams(window.location.search);
 const type=params.get("type");
 const item = params.get("item");
+const count = params.get("ticketcount");
 const price = params.get("price");
 const user_id = params.get("user_id");
-
+const id=params.get("id");
 if (!(item && price)) {
     document.getElementById("item-name").innerHTML = "No item specified";
 }
@@ -27,11 +28,13 @@ async function confirmPayment() {
     // Here you could redirect to a real payment gateway
     // Prepare the payment data to send to the backend
     const paymentData = {
+        id:id,
         user_id: user_id,
         amount: price,
         payment_method: method,
         payment_status: 'Confirmed', // In real case, this should be dynamic based on payment gateway response
         transport_type: type, // You can update the type of booking dynamically
+        count:count,
         status: 'Confirmed', // Status of booking
         booking_date: new Date().toISOString().split('T')[0] // current date in 'YYYY-MM-DD' format
     };
