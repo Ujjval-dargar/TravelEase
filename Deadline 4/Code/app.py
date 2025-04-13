@@ -914,7 +914,7 @@ def browse_itinerary():
 @app.route('/browse_hotels')
 def browse_hotels():
     user_id = request.args.get('user_id', type=int)
-    return render_template('browse_hotels.html')
+    return render_template('browse_hotels.html', user_id = user_id)
 
 
 @app.route('/browse_trains')
