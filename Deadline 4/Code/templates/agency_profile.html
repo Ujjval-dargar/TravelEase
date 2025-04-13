@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Agency Profile</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --danger: #dc2626;
+            --danger-hover: #b91c1c;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --bg-main: #eef2ff;
+            --bg-card: #ffffff;
+            --bg-form: #f8fafc;
+            --bg-table-hover: #f1f5f9;
+            --bg-table-header: #dbeafe;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --header-bg: #1e40af;
+            --header-text: #ffffff;
+            --form-bg: #f0f9ff;
+            --profile-card-bg: #f0f9ff;
+            --section-heading-bg: #f1f5f9;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-main);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.5), transparent);
+        }
+        
+        h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--text-dark);
+        }
+        
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 1.5rem 0;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            background-color: var(--section-heading-bg);
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+        }
+        
+        h2:before {
+            content: "";
+            display: inline-block;
+            width: 5px;
+            height: 24px;
+            background: var(--primary);
+            margin-right: 10px;
+            border-radius: 3px;
+        }
+        
+        h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+            padding: 0.5rem 0;
+            border-bottom: 2px solid var(--primary);
+        }
+        
+        .profile-card {
+            border-radius: 12px;
+            background-color: var(--profile-card-bg);
+            box-shadow: var(--shadow-md);
+            padding: 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .profile-info {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .profile-actions {
+            margin-top: 1rem;
+        }
+        
+        .profile-card p {
+            margin-bottom: 0.75rem;
+            color: var(--text-dark);
+        }
+        
+        .profile-card strong {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .action-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            background-color: #f8fafc;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            margin-top: 1.5rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow-sm);
+            background-color: #ffffff;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: var(--bg-card);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        th {
+            background-color: var(--bg-table-header);
+            font-weight: 600;
+            color: var(--text-dark);
+            position: sticky;
+            top: 0;
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        tbody tr:hover {
+            background-color: var(--bg-table-hover);
+        }
+        
+        .btn {
+            padding: 0.75rem 1.25rem;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            border: none;
+            outline: none;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: var(--danger-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.2);
+        }
+        
+        .btn-secondary {
+            background-color: #94a3b8;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #64748b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(100, 116, 139, 0.2);
+        }
+        
+        .form-panel {
+            display: none;
+            margin-top: 1.5rem;
+            background: var(--form-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            animation: slideDown 0.3s ease;
+            border-top: 4px solid var(--primary);
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            margin-top: 0.25rem;
+            background-color: #ffffff;
+            transition: all 0.2s ease;
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            background-color: white;
+        }
+        
+        .form-actions {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .no-itineraries {
+            color: var(--text-muted);
+            font-style: italic;
+            text-align: center;
+            padding: 2rem;
+            background-color: #f9fafb;
+            border-radius: 8px;
+            border: 1px dashed var(--border-color);
+        }
+        
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(3px);
+        }
+        
+        .modal {
+            background-color: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: var(--shadow-lg);
+            animation: modalFadeIn 0.3s ease;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .modal-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .modal-icon {
+            margin-right: 1rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-icon.success {
+            background-color: #dcfce7;
+            color: var(--success);
+        }
+        
+        .modal-icon.error {
+            background-color: #fee2e2;
+            color: var(--danger);
+        }
+        
+        .modal-icon.warning {
+            background-color: #fff7ed;
+            color: var(--warning);
+        }
+        
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .modal-content {
+            margin-bottom: 1.5rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+        
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+        
+        .icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            stroke-width: 2;
+            stroke: currentColor;
+            fill: none;
+            vertical-align: middle;
+        }
+
+        .itinerary-list {
+            margin-top: 2rem;
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            padding: 1.5rem;
+            background-image: linear-gradient(to bottom, #ffffff, #f9fafb);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Welcome, {{ agency.name }}</h2>
+
+        <div class="profile-card">
+            <div class="profile-info">
+                <p><strong>Email:</strong> {{ agency.email or 'N/A' }}</p>
+                <p><strong>Location:</strong> {{ agency.location or 'N/A' }}</p>
+            </div>
+            <div class="profile-actions">
+                <a href="/" class="btn btn-danger">
+                    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    Log Out
+                </a>
+            </div>
+        </div>
+
+        <div class="itinerary-list">
+            <h2>Itineraries</h2>
+
+            <div class="action-bar">
+                <button class="btn btn-primary" onclick="showAddForm()">
+                    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Add Itinerary
+                </button>
+                <button class="btn btn-secondary" onclick="showModifyForm()">
+                    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                    Modify Itinerary
+                </button>
+            </div>
+
+            <div id="add-form" class="form-panel">
+                <h3>Add New Itinerary</h3>
+                <form id="add-itinerary-form">
+                    <input type="hidden" name="agency_id" value="{{ agency.agency_id }}">
+                    
+                    <div class="form-group">
+                        <label>Description:</label>
+                        <textarea name="description" placeholder="Itinerary description" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Days:</label>
+                        <input type="number" name="duration_day" placeholder="Number of days" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Nights:</label>
+                        <input type="number" name="duration_night" placeholder="Number of nights" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Price (₹):</label>
+                        <input type="number" step="0.01" name="price" placeholder="Price" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label>City:</label>
+                        <input type="text" name="destination_city" placeholder="Destination city" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label>State:</label>
+                        <input type="text" name="destination_state" placeholder="Destination state" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Country:</label>
+                        <input type="text" name="destination_country" placeholder="Destination country" required />
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeAddForm()">Close</button>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="modify-form" class="form-panel">
+                <h3>Modify Itinerary</h3>
+                <form id="modify-itinerary-form">
+                    <div class="form-group">
+                        <label>Select Itinerary:</label>
+                        <select name="itinerary_id" required>
+                            {% for it in itineraries %}
+                            <option value="{{ it.itinerary_id }}">#{{ it.itinerary_id }}: {{ it.destination_city }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Field to Modify:</label>
+                        <select name="field" required>
+                            <option value="description">Description</option>
+                            <option value="duration_day">Days</option>
+                            <option value="duration_night">Nights</option>
+                            <option value="price">Price</option>
+                            <option value="destination_city">City</option>
+                            <option value="destination_state">State</option>
+                            <option value="destination_country">Country</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>New Value:</label>
+                        <input type="text" name="new_value" required />
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModifyForm()">Close</button>
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="table-container">
+                {% if itineraries %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Description</th>
+                            <th>Days</th>
+                            <th>Nights</th>
+                            <th>Price (₹)</th>
+                            <th>Destination</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for it in itineraries %}
+                        <tr>
+                            <td>{{ it.itinerary_id }}</td>
+                            <td>{{ it.description }}</td>
+                            <td>{{ it.duration_day }}</td>
+                            <td>{{ it.duration_night }}</td>
+                            <td>{{ it.price }}</td>
+                            <td>{{ it.destination_city }}, {{ it.destination_state }}, {{ it.destination_country }}</td>
+                            <td>
+                                <button class="btn btn-danger delete-btn" onclick="deleteItinerary({{ it.itinerary_id }})">
+                                    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                                    </svg>
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="no-itineraries">No itineraries added yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Modal for alerts -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="modal">
+            <div class="modal-header">
+                <div class="modal-icon" id="modalIcon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                </div>
+                <h3 class="modal-title" id="modalTitle">Success</h3>
+            </div>
+            <div class="modal-content" id="modalContent">
+                Operation completed successfully.
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="closeModal()">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Modal Functions
+        function showModal(title, message, type = 'success') {
+            const modal = document.getElementById('modal');
+            const modalOverlay = document.getElementById('modalOverlay');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalContent = document.getElementById('modalContent');
+            const modalIcon = document.getElementById('modalIcon');
+            const modalActions = document.querySelector('.modal-actions');
+
+            // Reset to single OK button for success/error messages
+            modalActions.innerHTML = `
+                <button class="btn btn-primary" onclick="closeModal()">OK</button>
+            `;
+
+            modalTitle.textContent = title;
+            modalContent.textContent = message;
+
+            // Set icon based on type
+            modalIcon.className = 'modal-icon ' + type;
+
+            // Show different icon based on type
+            if (type === 'success') {
+                modalIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>`;
+            } else if (type === 'error') {
+                modalIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                </svg>`;
+            } else if (type === 'warning') {
+                modalIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>`;
+            }
+
+            modalOverlay.style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').style.display = 'none';
+        }
+
+        function showConfirmModal(message, onConfirm) {
+            const modal = document.getElementById('modal');
+            const modalOverlay = document.getElementById('modalOverlay');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalContent = document.getElementById('modalContent');
+            const modalIcon = document.getElementById('modalIcon');
+            const modalActions = document.querySelector('.modal-actions');
+
+            modalTitle.textContent = 'Confirm Action';
+            modalContent.textContent = message;
+
+            // Set warning icon
+            modalIcon.className = 'modal-icon warning';
+            modalIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>`;
+
+            // Replace actions with confirm/cancel
+            modalActions.innerHTML = `
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-danger" id="confirmBtn">Confirm</button>
+            `;
+
+            // Add confirm event
+            document.getElementById('confirmBtn').addEventListener('click', function() {
+                closeModal();
+                onConfirm();
+            });
+
+            modalOverlay.style.display = 'flex';
+        }
+
+        // Form Controls
+        function showAddForm() {
+            document.getElementById("add-form").style.display = "block";
+            document.getElementById("modify-form").style.display = "none";
+        }
+
+        function showModifyForm() {
+            document.getElementById("modify-form").style.display = "block";
+            document.getElementById("add-form").style.display = "none";
+        }
+
+        function closeAddForm() {
+            document.getElementById("add-form").style.display = "none";
+        }
+
+        function closeModifyForm() {
+            document.getElementById("modify-form").style.display = "none";
+        }
+
+        // Form Submit Handlers
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add Itinerary Form Handler
+            document.getElementById("add-itinerary-form").addEventListener("submit", async function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                const jsonData = Object.fromEntries(formData.entries());
+            
+                const res = await fetch('/api/add_itinerary', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(jsonData)
+                });
+            
+                const data = await res.json();
+                if (data.success) {
+                    showModal('Success', 'Itinerary added successfully!', 'success');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showModal('Error', 'Failed to add itinerary: ' + (data.error || 'Unknown error'), 'error');
+                }
+            });
+        
+            // Modify Itinerary Form Handler
+            document.getElementById("modify-itinerary-form").addEventListener("submit", async function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                const jsonData = Object.fromEntries(formData.entries());
+            
+                const res = await fetch('/api/modify_itinerary', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(jsonData)
+                });
+            
+                const data = await res.json();
+                if (data.success) {
+                    showModal('Success', 'Itinerary updated successfully!', 'success');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showModal('Error', 'Update failed: ' + (data.error || 'Unknown error'), 'error');
+                }
+            });
+        });
+
+        // Delete Itinerary
+        async function deleteItinerary(itinerary_id) {
+            showConfirmModal("Are you sure you want to delete this itinerary?", async function() {
+                const res = await fetch('/api/delete_itinerary', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ itinerary_id: itinerary_id })
+                });
+            
+                const data = await res.json();
+                if (data.success) {
+                    showModal('Success', 'Itinerary deleted successfully.', 'success');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showModal('Error', 'Cannot be deleted due to active booking.', 'error');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

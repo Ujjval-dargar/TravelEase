@@ -35,7 +35,7 @@ CREATE TABLE TourismAgency (
     agency_id INT AUTO_INCREMENT PRIMARY KEY,
 
     name VARCHAR(100) NOT NULL,
-    location VARCHAR(255) NOT NULL,
+    location VARCHAR(255),
 
     email VARCHAR(255) UNIQUE,
     mobile_number VARCHAR(20) UNIQUE,
@@ -190,7 +190,7 @@ CREATE TABLE Reviews (
 
 CREATE TABLE A_Route_Follows (
     arf_pkey INT AUTO_INCREMENT PRIMARY KEY,
-    route_id INT NOT NULL UNIQUE,
+    route_id INT NOT NULL,
 
     price DECIMAL(10,2) NOT NULL,
     available_seats INT NOT NULL,
@@ -209,7 +209,7 @@ CREATE TABLE A_Route_Follows (
 
 CREATE TABLE T_Route_Follows (
     trf_pkey INT AUTO_INCREMENT PRIMARY KEY,
-    route_id INT NOT NULL UNIQUE,
+    route_id INT NOT NULL,
 
     price DECIMAL(10,2) NOT NULL,
     available_seats INT NOT NULL,

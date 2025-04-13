@@ -75,12 +75,12 @@ def signup():
                 VALUES (%s, %s, %s)
             """, (name.strip(), email, password))
 
-        # elif (user_type == "agency"):
-        #     cursor.execute("""
-        #         INSERT INTO TourismAgency (name, email, password)
-        #         VALUES (%s, %s, %s)
-        #     """, (name.strip(), email, password))
-        
+        elif (user_type == "agency"):
+            cursor.execute("""
+                INSERT INTO TourismAgency (name, email, password)
+                VALUES (%s, %s, %s)
+            """, (name.strip(), email, password))
+
         conn.commit()
         cursor.close()
         conn.close()
@@ -94,7 +94,9 @@ def signin():
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')
-    user_type = data.get('userType')  # customer | T_transport | A_transport | agency | hotel
+
+    # customer | T_transport | A_transport | agency | hotel
+    user_type = data.get('userType')
 
     app.logger.debug(
         f"Signin attempt: email={email!r}, user_type={user_type!r}")
@@ -103,9 +105,9 @@ def signin():
         'customer':  ('Customer',         'customer_id',    'profile'),
         'A_transport': ('TransportProvider', 'provider_id',    'A_transport_profile'),
         'T_transport': ('TransportProvider', 'provider_id',    'T_transport_profile'),
-        'hotel':     ('HotelProvider',    'hotel_id',       'hotel_profile'),
-        # 'agency':    ('TourismAgency',    'agency_id',      'agency_profile'),
-    }
+        'hotel':     ('AccommodationProvider',    'provider_id',       'hotel_profile'),
+        'agency':    ('TourismAgency',    'agency_id',      'agency_profile'),
+    }  
 
     if user_type not in table_map:
         return jsonify({'success': False, 'error': 'Invalid user type'}), 400
@@ -125,17 +127,15 @@ def signin():
             return jsonify({'success': False, 'error': 'Invalid credentials'}), 401
 
         # Normalize param name: always use 'user_id' for the customer profile route
-        if user_type == 'customer':
-            redirect_url = url_for(profile_endpoint, user_id=user[pk_field])
-        else:
-            redirect_url = url_for(profile_endpoint, **
-                                   {pk_field: user[pk_field]})
+        redirect_url = url_for(profile_endpoint, user_id=user[pk_field])
 
         return jsonify({'success': True, 'redirect': redirect_url})
 
     except mysql.connector.Error as err:
         app.logger.error(f"MySQL error on signin: {err}")
         return jsonify({'success': False, 'error': 'Server error'}), 500
+
+
 
 
 @app.route('/profile')
@@ -193,26 +193,716 @@ def profile():
                            bookings=bookings)
 
 
-@app.route('/transport_profile')
-def transport_profile():
-    provider_id = request.args.get('provider_id', type=int)
-    print("hello")
 
 
+@app.route('/A_transport_profile')
+def A_transport_profile():
+    user_id = request.args.get('user_id', type=int)
+    if not user_id:
+        return redirect(url_for('login_page'))
+
+    # 1) Fetch airplane transport provider
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute(
+            "SELECT * FROM TransportProvider WHERE provider_id=%s",
+            (user_id,)
+        )
+        user = cursor.fetchone()
+        cursor.close()
+        conn.close()
+    except mysql.connector.Error as err:
+        app.logger.error(f"Error fetching provider {user_id}: {err}")
+        return "Internal Server Error", 500
+
+    if not user:
+        return "User not found", 404
+
+    # 2) Fetch Provided Airplanes
+    airplanes = []
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT
+              airplane_id,
+              name,
+              arrival_time,
+              arrival_date,
+              departure_time,
+              departure_date,
+              arrival_location,
+              departure_location,
+              available_seats,
+              capacity,
+              price,
+              arf_pkey
+
+            FROM A_Route_Follows 
+            NATURAL JOIN AirplaneRoute
+            NATURAL JOIN Airplane
+            WHERE provider_id = %s
+
+        """, (user_id,))
+
+        airplanes = cursor.fetchall()
+        cursor.close()
+        conn.close()
+
+    except mysql.connector.Error as err:
+        app.logger.warning(f"Could not fetch airplanes for {user_id}: {err}")
+
+    return render_template('A_transport_profile.html',
+                           user_id=user,
+                           airplanes=airplanes)
+
+
+@app.route('/api/delete_airplane_entry', methods=['POST'])
+def delete_airplane_entry():
+    data = request.get_json()
+    arf_pkey = data.get('arf_pkey')
+
+    if not arf_pkey:
+        return jsonify({'success': False, 'error': 'Missing arf_pkey'}), 400
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+
+        cursor.execute(
+            "DELETE FROM A_Route_Follows WHERE arf_pkey = %s", (arf_pkey,))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return jsonify({'success': True})
+    except mysql.connector.Error as err:
+        app.logger.error(f"Error deleting airplane {arf_pkey}: {err}")
+        return jsonify({'success': False, 'error': str(err)}), 500
+
+
+@app.route('/api/add_airplane_entry', methods=['POST'])
+def add_airplane_entry():
+    data = request.get_json()
+
+    print(data)
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+
+        # Check if airplane_id already exists
+        cursor.execute(
+            "SELECT * FROM Airplane WHERE airplane_id = %s", (data['id'],))
+        existing = cursor.fetchone()
+
+        if not existing:
+            cursor.execute("""
+                INSERT INTO Airplane (airplane_id, name, provider_id, capacity)
+                VALUES (%s, %s, %s, %s)
+            """, (
+                data['id'],
+                data['name'],
+                data['provider_id'],
+                data['capacity']
+            ))
+
+        # Insert into AirplaneRoute
+        # Check if route already exists
+        cursor.execute("""
+            SELECT route_id FROM AirplaneRoute
+            WHERE arrival_location = %s AND departure_location = %s
+        """, (data['arrival_location'], data['departure_location']))
+        route = cursor.fetchone()
+
+        if route:
+            route_id = route[0]
+        else:
+            cursor.execute("""
+                INSERT INTO AirplaneRoute (arrival_location, departure_location)
+                VALUES (%s, %s)
+            """, (data['arrival_location'], data['departure_location']))
+            route_id = cursor.lastrowid  # Get the newly created route_id
+
+        # Insert into A_Route_Follows
+        cursor.execute("""
+            INSERT INTO A_Route_Follows (
+                route_id,
+                price,
+                available_seats,
+                arrival_time, 
+                departure_time,
+                arrival_date,
+                departure_date,
+                airplane_id
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """, (
+            route_id,
+            data['price'],
+            data['available_seats'],
+            data['arrival_time'],
+            data['departure_time'],
+            data['arrival_date'],
+            data['departure_date'],
+            data['id']
+        ))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return jsonify({'success': True})
+    except mysql.connector.Error as err:
+        app.logger.error(f"Error adding airplane: {err}")
+        return jsonify({'success': False, 'error': str(err)}), 500
+
+
+@app.route('/api/modify_airplane_entry', methods=['POST'])
+def modify_airplane_entry():
+    data = request.get_json()
+
+    required_fields = ['arf_pkey', 'field', 'new_value']
+    if not all(field in data for field in required_fields):
+        return jsonify({'success': False, 'error': 'Missing required fields'}), 400
+
+    arf_pkey = data['arf_pkey']
+    field = data['field']
+    new_value = data['new_value']
+
+    allowed_fields = {
+        'price': 'FLOAT',
+        'available_seats': 'INT',
+        'arrival_time': 'TIME',
+        'departure_time': 'TIME',
+        'arrival_date': 'DATE',
+        'departure_date': 'DATE'
+    }
+
+    if field not in allowed_fields:
+        return jsonify({'success': False, 'error': 'Invalid field name'}), 400
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+
+        # Route and timing related data lives in A_Route_Follows
+        if field in ['arrival_time', 'departure_time', 'arrival_date', 'departure_date', 'available_seats', 'price']:
+            update_query = f"""
+                UPDATE A_Route_Follows
+                SET {field} = %s
+                WHERE arf_pkey = %s
+            """
+        else:
+            return jsonify({'success': False, 'error': 'Field cannot be updated'}), 400
+
+        cursor.execute(update_query, (new_value, arf_pkey))
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return jsonify({'success': True})
+
+    except mysql.connector.Error as err:
+        app.logger.error(f"Database update error: {err}")
+        return jsonify({'success': False, 'error': str(err)}), 500
+
+
+
+
+@app.route('/T_transport_profile')
+def T_transport_profile():
+    user_id = request.args.get('user_id', type=int)
+    if not user_id:
+        return redirect(url_for('login_page'))
+
+    # 1) Fetch train transport provider
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute(
+            "SELECT * FROM TransportProvider WHERE provider_id=%s",
+            (user_id,)
+        )
+        user = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+    except mysql.connector.Error as err:
+        app.logger.error(f"Error fetching provider {user_id}: {err}")
+        return "Internal Server Error", 500
+
+    if not user:
+        return "User not found", 404
+
+    # 2) Fetch Provided trains
+    trains = []
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT
+              train_id,
+              name,
+              arrival_time,
+              arrival_date,
+              departure_time,
+              departure_date,
+              arrival_location,
+              departure_location,
+              available_seats,
+              capacity,
+              price,
+              trf_pkey
+
+            FROM T_Route_Follows 
+            NATURAL JOIN TrainRoute
+            NATURAL JOIN Train
+            WHERE provider_id = %s
+
+        """, (user_id,))
+
+        trains = cursor.fetchall()
+        cursor.close()
+        conn.close()
+
+    except mysql.connector.Error as err:
+        app.logger.warning(f"Could not fetch trains for {user_id}: {err}")
+
+    return render_template('T_transport_profile.html',
+                           user_id=user,
+                           trains=trains)
+
+
+@app.route('/api/delete_train_entry', methods=['POST'])
+def delete_train_entry():
+    data = request.get_json()
+    trf_pkey = data.get('trf_pkey')
+
+    if not trf_pkey:
+        return jsonify({'success': False, 'error': 'Missing trf_pkey'}), 400
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+
+        cursor.execute(
+            "DELETE FROM T_Route_Follows WHERE trf_pkey = %s", (trf_pkey,))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return jsonify({'success': True})
+    except mysql.connector.Error as err:
+        app.logger.error(f"Error deleting train {trf_pkey}: {err}")
+        return jsonify({'success': False, 'error': str(err)}), 500
+
+
+@app.route('/api/add_train_entry', methods=['POST'])
+def add_train_entry():
+    data = request.get_json()
+
+    print(data)
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+
+        # Check if train_id already exists
+        cursor.execute(
+            "SELECT * FROM Train WHERE train_id = %s", (data['id'],))
+        existing = cursor.fetchone()
+
+        if not existing:
+            cursor.execute("""
+                INSERT INTO Train (train_id, name, provider_id, capacity)
+                VALUES (%s, %s, %s, %s)
+            """, (
+                data['id'],
+                data['name'],
+                data['provider_id'],
+                data['capacity']
+            ))
+
+        # Insert into TrainRoute
+        # Check if route already exists
+        cursor.execute("""
+            SELECT route_id FROM TrainRoute
+            WHERE arrival_location = %s AND departure_location = %s
+        """, (data['arrival_location'], data['departure_location']))
+        route = cursor.fetchone()
+
+        if route:
+            route_id = route[0]
+        else:
+            cursor.execute("""
+                INSERT INTO TrainRoute (arrival_location, departure_location)
+                VALUES (%s, %s)
+            """, (data['arrival_location'], data['departure_location']))
+            route_id = cursor.lastrowid  # Get the newly created route_id
+
+        # Insert into T_Route_Follows
+        cursor.execute("""
+            INSERT INTO T_Route_Follows (
+                route_id,
+                price,
+                available_seats,
+                arrival_time, 
+                departure_time,
+                arrival_date,
+                departure_date,
+                train_id
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """, (
+            route_id,
+            data['price'],
+            data['available_seats'],
+            data['arrival_time'],
+            data['departure_time'],
+            data['arrival_date'],
+            data['departure_date'],
+            data['id']
+        ))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return jsonify({'success': True})
+    except mysql.connector.Error as err:
+        app.logger.error(f"Error adding train: {err}")
+        return jsonify({'success': False, 'error': str(err)}), 500
+
+
+@app.route('/api/modify_train_entry', methods=['POST'])
+def modify_train_entry():
+    data = request.get_json()
+
+    required_fields = ['trf_pkey', 'field', 'new_value']
+    if not all(field in data for field in required_fields):
+        return jsonify({'success': False, 'error': 'Missing required fields'}), 400
+
+    trf_pkey = data['trf_pkey']
+    field = data['field']
+    new_value = data['new_value']
+
+    allowed_fields = {
+        'price': 'FLOAT',
+        'available_seats': 'INT',
+        'arrival_time': 'TIME',
+        'departure_time': 'TIME',
+        'arrival_date': 'DATE',
+        'departure_date': 'DATE'
+    }
+
+    if field not in allowed_fields:
+        return jsonify({'success': False, 'error': 'Invalid field name'}), 400
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+
+        # Route and timing related data lives in T_Route_Follows
+        if field in ['arrival_time', 'departure_time', 'arrival_date', 'departure_date', 'available_seats', 'price']:
+            update_query = f"""
+                UPDATE T_Route_Follows
+                SET {field} = %s
+                WHERE trf_pkey = %s
+            """
+        else:
+            return jsonify({'success': False, 'error': 'Field cannot be updated'}), 400
+
+        cursor.execute(update_query, (new_value, trf_pkey))
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return jsonify({'success': True})
+
+    except mysql.connector.Error as err:
+        app.logger.error(f"Database update error: {err}")
+        return jsonify({'success': False, 'error': str(err)}), 500
+
+
+
+
+# --- Agency Profile Page ---
 @app.route('/agency_profile')
 def agency_profile():
-    agency_id = request.args.get('agency_id', type=int)
-    # fetch from TourismAgency table...
-    # render templates/agency_profile.html
-    ...
+    agency_id = request.args.get('user_id', type=int)
+
+    print(agency_id) 
+    if not agency_id:
+        return redirect(url_for('login_page'))
+
+    # Fetch agency info
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM TourismAgency WHERE agency_id=%s", (agency_id,))
+        agency = cursor.fetchone()
+        cursor.close()
+        conn.close()
+    except mysql.connector.Error as err:
+        app.logger.error(f"Error fetching agency {agency_id}: {err}")
+        return "Internal Server Error", 500
+
+    if not agency:
+        return "Agency not found", 404
+
+    # Fetch itineraries
+    itineraries = []
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT
+              itinerary_id,
+              description,
+              duration_day,
+              duration_night,
+              price,
+              destination_city,
+              destination_state,
+              destination_country
+            FROM Itinerary
+            WHERE agency_id = %s
+            ORDER BY itinerary_id DESC
+        """, (agency_id,))
+        itineraries = cursor.fetchall()
+        cursor.close()
+        conn.close()
+    except mysql.connector.Error as err:
+        app.logger.warning(f"Could not fetch itineraries for {agency_id}: {err}")
+
+    return render_template('agency_profile.html',
+                           agency=agency,
+                           itineraries=itineraries)
+
+# --- Add Itinerary ---
+@app.route('/api/add_itinerary', methods=['POST'])
+def add_itinerary():
+    data = request.get_json()
+    required = ['agency_id','description','duration_day','duration_night',
+                'price','destination_city','destination_state','destination_country']
+    if not all(k in data for k in required):
+        return jsonify({'success':False,'error':'Missing fields'}),400
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO Itinerary
+            (agency_id, description, duration_day, duration_night,
+             price, destination_city, destination_state, destination_country)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+        """,(
+            data['agency_id'],
+            data['description'],
+            data['duration_day'],
+            data['duration_night'],
+            data['price'],
+            data['destination_city'],
+            data['destination_state'],
+            data['destination_country']
+        ))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return jsonify({'success':True})
+    except mysql.connector.Error as err:
+        app.logger.error(f"Error adding itinerary: {err}")
+        return jsonify({'success':False,'error':str(err)}),500
+
+# --- Delete Itinerary ---
+@app.route('/api/delete_itinerary', methods=['POST'])
+def delete_itinerary():
+    data = request.get_json()
+    iid = data.get('itinerary_id')
+    if not iid:
+        return jsonify({'success':False,'error':'Missing itinerary_id'}),400
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM Itinerary WHERE itinerary_id=%s", (iid,))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return jsonify({'success':True})
+    except mysql.connector.Error as err:
+        app.logger.error(f"Error deleting itinerary {iid}: {err}")
+        return jsonify({'success':False,'error':str(err)}),500
+
+# --- Modify Itinerary ---
+@app.route('/api/modify_itinerary', methods=['POST'])
+def modify_itinerary():
+    data = request.get_json()
+    required = ['itinerary_id','field','new_value']
+    if not all(k in data for k in required):
+        return jsonify({'success':False,'error':'Missing fields'}),400
+
+    iid = data['itinerary_id']
+    field = data['field']
+    val = data['new_value']
+    allowed = {'description','duration_day','duration_night',
+               'price','destination_city','destination_state','destination_country'}
+    if field not in allowed:
+        return jsonify({'success':False,'error':'Invalid field'}),400
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        query = f"UPDATE Itinerary SET {field}=%s WHERE itinerary_id=%s"
+        cursor.execute(query, (val, iid))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return jsonify({'success':True})
+    except mysql.connector.Error as err:
+        app.logger.error(f"Error modifying itinerary {iid}: {err}")
+        return jsonify({'success':False,'error':str(err)}),500
 
 
+
+
+# --- Hotel Provider Profile Page ---
 @app.route('/hotel_profile')
 def hotel_profile():
-    hotel_id = request.args.get('hotel_id', type=int)
-    # fetch from HotelProvider table...
-    # render templates/hotel_profile.html
-    ...
+    provider_id = request.args.get('user_id', type=int)
+    if not provider_id:
+        return redirect(url_for('login_page'))
+
+    # Fetch provider info
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute(
+            "SELECT * FROM AccommodationProvider WHERE provider_id=%s",
+            (provider_id,)
+        )
+        provider = cursor.fetchone()
+        cursor.close()
+        conn.close()
+    except mysql.connector.Error as err:
+        app.logger.error(f"Error fetching provider {provider_id}: {err}")
+        return "Internal Server Error", 500
+
+    if not provider:
+        return "Provider not found", 404
+
+    # Fetch hotels
+    hotels = []
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT
+              hotel_id,
+              name,
+              location,
+              price_per_night,
+              total_rooms,
+              hotel_description,
+              mobile_number,
+              email
+            FROM Hotel
+            WHERE provider_id = %s
+            ORDER BY hotel_id DESC
+        """, (provider_id,))
+        hotels = cursor.fetchall()
+        cursor.close()
+        conn.close()
+    except mysql.connector.Error as err:
+        app.logger.warning(f"Could not fetch hotels for {provider_id}: {err}")
+
+    return render_template('hotel_profile.html',
+                           provider=provider,
+                           hotels=hotels)
+
+# --- Add Hotel ---
+@app.route('/api/add_hotel', methods=['POST'])
+def add_hotel():
+    data = request.get_json()
+    required = ['provider_id','name','location', 'mobile_number', 'email' ,'price_per_night',
+                'total_rooms','hotel_description']
+    if not all(k in data for k in required):
+        return jsonify({'success':False,'error':'Missing fields'}),400
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO Hotel
+            (name, location, price_per_night, total_rooms, hotel_description, provider_id, mobile_number, email)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+        """,(
+            data['name'],
+            data['location'],
+            data['price_per_night'],
+            data['total_rooms'],
+            data['hotel_description'],
+            data['provider_id'],
+            data['mobile_number'],
+            data['email']
+        ))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return jsonify({'success':True})
+    except mysql.connector.Error as err:
+        app.logger.error(f"Error adding hotel: {err}")
+        return jsonify({'success':False,'error':str(err)}),500
+
+# --- Delete Hotel ---
+@app.route('/api/delete_hotel', methods=['POST'])
+def delete_hotel():
+    data = request.get_json()
+    hid = data.get('hotel_id')
+    if not hid:
+        return jsonify({'success':False,'error':'Missing hotel_id'}),400
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM Hotel WHERE hotel_id=%s", (hid,))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return jsonify({'success':True})
+    except mysql.connector.Error as err:
+        app.logger.error(f"Error deleting hotel {hid}: {err}")
+        return jsonify({'success':False,'error':str(err)}),500
+
+# --- Modify Hotel ---
+@app.route('/api/modify_hotel', methods=['POST'])
+def modify_hotel():
+    data = request.get_json()
+    required = ['hotel_id','field','new_value']
+    if not all(k in data for k in required):
+        return jsonify({'success':False,'error':'Missing fields'}),400
+
+    hid = data['hotel_id']
+    field = data['field']
+    val = data['new_value']
+    allowed = {'name','location', 'mobile_number', 'email','price_per_night','total_rooms','hotel_description'}
+    if field not in allowed:
+        return jsonify({'success':False,'error':'Invalid field'}),400
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        query = f"UPDATE Hotel SET {field}=%s WHERE hotel_id=%s"
+        cursor.execute(query, (val, hid))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return jsonify({'success':True})
+    except mysql.connector.Error as err:
+        app.logger.error(f"Error modifying hotel {hid}: {err}")
+        return jsonify({'success':False,'error':str(err)}),500
+
+
+
+
 
 
 @app.route('/browse_itinerary')
@@ -220,21 +910,25 @@ def browse_itinerary():
     return render_template('browse_itinerary.html')
 
 
+@app.route('/browse_hotels')
+def browse_hotels():
+    return render_template('browse_hotels.html')
+
+
+
+
 @app.route('/browse_trains')
 def browse_trains():
     user_id = request.args.get('user_id', type=int)
-    return render_template('browse_trains.html',user_id=user_id)
+    return render_template('browse_trains.html', user_id=user_id)
 
 
 @app.route('/browse_airplanes')
 def browse_airplanes():
     user_id = request.args.get('user_id', type=int)
-    return render_template('browse_airplanes.html',user_id=user_id)
+    return render_template('browse_airplanes.html', user_id=user_id)
 
 
-@app.route('/browse_hotels')
-def browse_hotels():
-    return render_template('browse_hotels.html')
 
 
 @app.route('/api/search_trains', methods=['POST'])
@@ -307,7 +1001,7 @@ def api_search_trains():
     except mysql.connector.Error as err:
         app.logger.error(f"Train search error: {err}")
         return jsonify({'error': 'Server error'}), 500
-    
+
 
 @app.route('/api/search_airplanes', methods=['POST'])
 def api_search_airplanes():
@@ -379,6 +1073,9 @@ def api_search_airplanes():
     except mysql.connector.Error as err:
         app.logger.error(f"Airplane search error: {err}")
         return jsonify({'error': 'Server error'}), 500
+
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
