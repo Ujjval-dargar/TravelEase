@@ -34,6 +34,7 @@ const params = new URLSearchParams(window.location.search);
         + '<th>Price</th>'
         + '<th>Actions</th>'
         + '</tr>';
+        
       trains.forEach(t => {
         html += `<tr>
           <td>${t.train_id}</td>

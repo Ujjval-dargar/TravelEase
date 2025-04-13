@@ -22,7 +22,7 @@ app = Flask(__name__)
 db_config = {
     'host': 'localhost',
     'user': 'root',
-    'password': '26april2005',
+    'password': 'root',
     'database': 'TravelEase'
 }
 
@@ -383,6 +383,53 @@ def api_search_airplanes():
         app.logger.error(f"Airplane search error: {err}")
         return jsonify({'error': 'Server error'}), 500
     
+@app.route('/api/search_itineraries', methods=['POST'])
+def api_search_itineraries():
+
+    data = request.get_json()
+    dest_city = data.get('destination_city')
+    dest_state = data.get('destination_state')
+    dest_country = data.get('destination_country')  
+
+    if not all([dest_city, dest_state, dest_country]):
+        return jsonify({'error': 'Missing fields'}), 400
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        query = """
+            SELECT *
+            FROM Itinerary
+            WHERE destination_city = %s
+              AND destination_state = %s
+              AND destination_country   = %s
+        """
+        cursor.execute(query, (dest_city, dest_state, dest_country))
+        raw_results = cursor.fetchall()
+        cursor.close()
+        conn.close()
+
+        results = []
+        for row in raw_results:
+
+            # Later in your route when building the result:
+            results.append({
+                'itinerary_id': row['itinerary_id'],
+                'agency_id': row['agency_id'],
+                'description': row['description'],
+                'duration_day': row['duration_day'],
+                'duration_night': row['duration_night'],
+                'price': str(row['price']),
+                'destination_city': str(row['destination_city']),
+                'destination_state': row['destination_state'],
+                'destination_country': row['destination_country']
+            })
+
+        return jsonify({'results': results})
+
+    except mysql.connector.Error as err:
+        app.logger.error(f"Itinerary search error: {err}")
+        return jsonify({'error': 'Server error'}), 500
 
 @app.route('/booking')
 def booking_page():

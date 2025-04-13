@@ -1,5 +1,5 @@
 const params = new URLSearchParams(window.location.search);
-    const user_id = params.get("user_id");
+const user_id = params.get("user_id");
 
 document.getElementById('airplane-search-form').addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -16,15 +16,15 @@ document.getElementById('airplane-search-form').addEventListener('submit', async
     const container = document.getElementById('results-container');
     container.innerHTML = '';
 
-    if (data.error) {
-      container.innerHTML = `<p class="no-results">${data.error}</p>`;
-      return;
-    }
-    const airplanes = data.results;
-    if (!airplanes.length) {
-      container.innerHTML = `<p class="no-results">No airplanes found.</p>`;
-      return;
-    }
+  if (data.error) {
+    container.innerHTML = `<p class="no-results">${data.error}</p>`;
+    return;
+  }
+  const airplanes = data.results;
+  if (!airplanes.length) {
+    container.innerHTML = `<p class="no-results">No airplanes found.</p>`;
+    return;
+  }
 
     // Build table
     let html = '<table><tr>'
@@ -45,7 +45,7 @@ document.getElementById('airplane-search-form').addEventListener('submit', async
         <td>${t.price}</td>
         <td><a href="/booking?type=airplane&arf_pkey=${encodeURIComponent(t.arf_pkey)}&user_id=${encodeURIComponent(user_id)}" class="btn-book">Book</a></td>
       </tr>`;
-    });
-    html += '</table>';
-    container.innerHTML = html;
   });
+  html += '</table>';
+  container.innerHTML = html;
+});
