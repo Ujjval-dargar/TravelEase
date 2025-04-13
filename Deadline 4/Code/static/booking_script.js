@@ -162,10 +162,83 @@ if (type == "airplane") {
     window.history.back();
   }
 }
+if (type == "hotel") {
+  const hotel_id = params.get("hotel_id");
+  const user_id = params.get("user_id");
+  const from_date=params.get("from_date");
+  const to_date=params.get("to_date");
+
+  async function loadBookingDetails() {
+    if (!hotel_id) {
+      document.getElementById("item-name").textContent = "No Hotel selected.";
+      return;
+    }
+
+    const res = await fetch(`/api/hget_booking_details?hotel_id=${hotel_id}`);
+    const data = await res.json();
+
+    if (data.error) {
+      document.getElementById("item-name").textContent = "Error: " + data.error;
+      return;
+    }
+
+    // Store item and price globally
+    itemName = `${data.name}`;
+    itemPrice = data.price;
+    itemDest=data.location;
+    itemdes = `${data.hotel_description}`;
+    document.getElementById("item-name").innerHTML = `
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <th style="text-align: left; padding: 8px;">Hotel Name</th>
+            <td style="padding: 8px;">${data.name}</td>
+          </tr>
+          <tr>
+            <th style="text-align: left; padding: 8px;">Hotel Description</th>
+            <td style="padding: 8px;">${data.hotel_description}</td>
+          </tr>
+          <tr>
+            <th style="text-align: left; padding: 8px;">Location</th>
+            <td style="padding: 8px;">${data.location}</td>
+          </tr>
+          <tr>
+            <th style="text-align: left; padding: 8px;">Price</th>
+            <td style="padding: 8px;">${data.price}</td>
+          </tr>
+          <tr>
+            <th style="text-align: left; padding: 8px;">From Date</th>
+            <td style="padding: 8px;">${from_date}</td>
+          </tr>
+          <tr>
+            <th style="text-align: left; padding: 8px;">To Date</th>
+            <td style="padding: 8px;">${to_date}</td>
+          </tr>
+        </table>
+      `;
+  }
+
+  loadBookingDetails();
+
+  function payNow() {
+    if (!itemName || !itemPrice) {
+      alert("Booking details not loaded yet.");
+      return;
+    }
+    const roomcount = document.getElementById("count").value;
+    const encodedItem = encodeURIComponent(itemName);
+    window.location.href = `/payment?type=hotel&item=${encodedItem}&price=${itemPrice*parseInt(roomcount)}&id=${hotel_id}&from_date=${from_date}&to_date=${to_date}&ticketcount=${roomcount}&user_id=${encodeURIComponent(user_id)}`;
+  }
+
+  function cancel() {
+    window.history.back();
+  }
+}
+
 if (type == "itinerary") {
   const itinerary_id = params.get("itinerary_id");
   const user_id = params.get("user_id");
-
+  
+  
   async function loadBookingDetails() {
     if (!itinerary_id) {
       document.getElementById("item-name").textContent = "No Itinerary selected.";
@@ -185,6 +258,7 @@ if (type == "itinerary") {
     itemPrice = data.price;
     itemDest=data.destination_city;
     itemday=data.duration_day;
+
     document.getElementById("item-name").innerHTML = `
         <table style="width: 100%; border-collapse: collapse;">
           <tr>
@@ -216,7 +290,7 @@ if (type == "itinerary") {
     }
 
     const encodedItem = encodeURIComponent(itemName);
-    window.location.href = `/payment?type=Itinerary&item=${encodedItem}&price=${itemPrice}&id=${itinerary_id}&user_id=${encodeURIComponent(user_id)}`;
+    window.location.href = `/payment?type=Itinerary&item=${encodedItem}&price=${itemPrice}&id=${itinerary_id}&ticketcount=${1}&user_id=${encodeURIComponent(user_id)}`;
   }
 
   function cancel() {

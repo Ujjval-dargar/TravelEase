@@ -414,6 +414,7 @@
                             <th>Payment Status</th>
                             <th>Coupon</th>
                             <th>Date</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -455,6 +456,14 @@
                                 {% endif %}
                             </td>
                             <td>{{ b.booking_date.strftime('%Y-%m-%d') }}</td>
+                            <td>
+                                {% if b.transport_type == 'Hotel' or b.transport_type == 'Itinerary' %}
+                                    <a class="btn btn-primary btn-sm">Give Review</a>
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                            
                         </tr>
                         {% endfor %}
                     </tbody>
