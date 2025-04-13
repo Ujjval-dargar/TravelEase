@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Payment Page</title>
@@ -57,6 +58,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <h2>Payment</h2>
@@ -64,9 +66,10 @@
 
     <div id="payment-form">
       <div class="payment-methods">
-        <label><input type="radio" name="method" value="credit" checked> Credit/Debit Card</label>
-        <label><input type="radio" name="method" value="upi"> UPI</label>
-        <label><input type="radio" name="method" value="paypal"> PayPal</label>
+        <label><input type="radio" name="method" value="Credit Card" checked> Credit Card</label>
+        <label><input type="radio" name="method" value="Debit Card" checked> Debit Card</label>
+        <label><input type="radio" name="method" value="UPI"> UPI</label>
+        <label><input type="radio" name="method" value="Net Banking"> Net Banking</label>
       </div>
 
       <div class="buttons">
@@ -76,22 +79,7 @@
     </div>
   </div>
 
-  <script>
-    // Extract item from URL
-    const params = new URLSearchParams(window.location.search);
-    const item = params.get("item");
-
-    document.getElementById("item-name").textContent = item ? `Paying for: ${item}` : "No item specified";
-
-    function confirmPayment() {
-      const method = document.querySelector('input[name="method"]:checked').value;
-      alert(`Payment confirmed for "${item}" via ${method.toUpperCase()}`);
-      // Here you could redirect to a real payment gateway
-    }
-
-    function cancel() {
-      window.history.back(); // Or use: window.location.href = "booking.html";
-    }
-  </script>
+  <script src="{{ url_for('static', filename='payment_script.js') }}"></script>
 </body>
+
 </html>

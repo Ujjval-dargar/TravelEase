@@ -22,7 +22,7 @@ app = Flask(__name__)
 db_config = {
     'host': 'localhost',
     'user': 'root',
-    'password': 'Ujjval@2005',
+    'password': '26april2005',
     'database': 'TravelEase'
 }
 
@@ -983,6 +983,7 @@ def api_search_trains():
 
             # Later in your route when building the result:
             results.append({
+                'trf_pkey': row['trf_pkey'],
                 'train_id': row['train_id'],
                 'name': row['name'],
                 'departure_location': row['departure_location'],
@@ -1051,10 +1052,12 @@ def api_search_airplanes():
         conn.close()
 
         results = []
+       
         for row in raw_results:
 
             # Later in your route when building the result:
             results.append({
+                'arf_pkey': row['arf_pkey'],
                 'airplane_id': row['airplane_id'],
                 'name': row['name'],
                 'departure_location': row['departure_location'],
@@ -1067,12 +1070,294 @@ def api_search_airplanes():
                 'available_seats': row['available_seats'],
                 'price': row['price'],
             })
-
+        print(results)
         return jsonify({'results': results})
 
     except mysql.connector.Error as err:
         app.logger.error(f"Airplane search error: {err}")
         return jsonify({'error': 'Server error'}), 500
+    
+@app.route('/api/search_itineraries', methods=['POST'])
+def api_search_itineraries():
+
+    data = request.get_json()
+    dest_city = data.get('destination_city')
+    dest_state = data.get('destination_state')
+    dest_country = data.get('destination_country')  
+
+    if not all([dest_city, dest_state, dest_country]):
+        return jsonify({'error': 'Missing fields'}), 400
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        query = """
+            SELECT *
+            FROM Itinerary
+            WHERE destination_city = %s
+              AND destination_state = %s
+              AND destination_country   = %s
+        """
+        cursor.execute(query, (dest_city, dest_state, dest_country))
+        raw_results = cursor.fetchall()
+        cursor.close()
+        conn.close()
+
+        results = []
+        for row in raw_results:
+
+            # Later in your route when building the result:
+            results.append({
+                'itinerary_id': row['itinerary_id'],
+                'agency_id': row['agency_id'],
+                'description': row['description'],
+                'duration_day': row['duration_day'],
+                'duration_night': row['duration_night'],
+                'price': str(row['price']),
+                'destination_city': str(row['destination_city']),
+                'destination_state': row['destination_state'],
+                'destination_country': row['destination_country']
+            })
+
+        return jsonify({'results': results})
+
+    except mysql.connector.Error as err:
+        app.logger.error(f"Itinerary search error: {err}")
+        return jsonify({'error': 'Server error'}), 500
+
+@app.route('/booking')
+def booking_page():
+    return render_template('booking.html')
+
+
+@app.route("/api/tget_booking_details")
+def tget_booking_details():
+    trf_pkey = request.args.get("trf_pkey")
+    if not trf_pkey:
+        return jsonify({"error": "Missing trf_pkey"}), 400
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        query = """
+            SELECT
+              train_id,
+              route_id,
+              trf_pkey,
+              price,
+              available_seats,
+              arrival_time,
+              arrival_date,
+              departure_time,
+              departure_date,
+              arrival_location,
+              departure_location,
+              name,
+              capacity,
+              provider_id,
+              TIMESTAMPDIFF(
+                MINUTE,
+                CONCAT(departure_date, ' ', departure_time),
+                CONCAT(arrival_date,   ' ', arrival_time)
+              ) AS travel_time_min
+            FROM T_Route_Follows
+            NATURAL JOIN TrainRoute
+            NATURAL JOIN Train
+            WHERE trf_pkey = %s
+        """
+        cursor.execute(query, (trf_pkey,))
+        row = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        if not row:
+            return jsonify({'error': 'Train not found'}), 404
+
+        result = {
+            'trf_pkey': row['trf_pkey'],
+            'train_id': row['train_id'],
+            'name': row['name'],
+            'departure_location': row['departure_location'],
+            'arrival_location': row['arrival_location'],
+            'departure_date': str(row['departure_date']),
+            'arrival_date': str(row['arrival_date']),
+            'departure_time': format_time_field(row['departure_time']),
+            'arrival_time': format_time_field(row['arrival_time']),
+            'travel_time_min': row['travel_time_min'],
+            'available_seats': row['available_seats'],
+            'price': float(row['price']),
+        }
+
+        return jsonify(result)
+
+    except mysql.connector.Error as err:
+        app.logger.error(f"Train search error: {err}")
+        return jsonify({'error': 'Server error'}), 500
+
+@app.route("/api/aget_booking_details")
+def aget_booking_details():
+    arf_pkey = request.args.get("arf_pkey")
+    if not arf_pkey:
+        return jsonify({"error": "Missing arf_pkey"}), 400
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        query = """
+            SELECT
+              airplane_id,
+              route_id,
+              arf_pkey,
+              price,
+              available_seats,
+              arrival_time,
+              arrival_date,
+              departure_time,
+              departure_date,
+              arrival_location,
+              departure_location,
+              name,
+              capacity,
+              provider_id,
+              TIMESTAMPDIFF(
+                MINUTE,
+                CONCAT(departure_date, ' ', departure_time),
+                CONCAT(arrival_date,   ' ', arrival_time)
+              ) AS travel_time_min
+            FROM A_Route_Follows
+            NATURAL JOIN AirplaneRoute
+            NATURAL JOIN Airplane
+            WHERE arf_pkey = %s
+        """
+        cursor.execute(query, (arf_pkey,))
+        row = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        if not row:
+            return jsonify({'error': 'Train not found'}), 404
+
+        result = {
+            'arf_pkey': row['arf_pkey'],
+            'airplane_id': row['airplane_id'],
+            'name': row['name'],
+            'departure_location': row['departure_location'],
+            'arrival_location': row['arrival_location'],
+            'departure_date': str(row['departure_date']),
+            'arrival_date': str(row['arrival_date']),
+            'departure_time': format_time_field(row['departure_time']),
+            'arrival_time': format_time_field(row['arrival_time']),
+            'travel_time_min': row['travel_time_min'],
+            'available_seats': row['available_seats'],
+            'price': float(row['price']),
+        }
+
+        return jsonify(result)
+
+    except mysql.connector.Error as err:
+        app.logger.error(f"Airplane search error: {err}")
+        return jsonify({'error': 'Server error'}), 500
+
+@app.route("/api/iget_booking_details")
+def iget_booking_details():
+    itinerary_id = request.args.get("itinerary_id")
+    if not itinerary_id:
+        return jsonify({"error": "Missing itinerary_id"}), 400
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        query = """
+            SELECT *
+            FROM Itinerary
+            WHERE  itinerary_id= %s
+        """
+        cursor.execute(query, (itinerary_id,))
+        row = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        if not row:
+            return jsonify({'error': 'Itinerary not found'}), 404
+
+        result = {
+            'itinerary_id': row['itinerary_id'],
+            'duration_day': row['duration_day'],
+            'price': row['price'],
+            'description': row['description'],
+            'destination_city': str(row['destination_city']),
+        }
+
+        return jsonify(result)
+
+    except mysql.connector.Error as err:
+        app.logger.error(f"Itinerary search error: {err}")
+        return jsonify({'error': 'Server error'}), 500
+
+
+@app.route('/payment')
+def payment_page():
+    return render_template('payment.html')
+
+@app.route('/api/confirm_payment', methods=['POST'])
+def confirm_payment():
+    # Get payment data from the frontend
+    payment_data = request.get_json()
+    user_id = payment_data['user_id']
+    amount = payment_data['amount']
+    payment_method = payment_data['payment_method']
+    payment_status = payment_data['payment_status']
+    transport_type = payment_data['transport_type']
+    status = payment_data['status']
+    booking_date = payment_data['booking_date']
+
+    try:
+        connection = mysql.connector.connect(**db_config)
+        cursor = connection.cursor()
+
+        # Insert into Payment table
+        cursor.execute('''
+            INSERT INTO Payment (amount, payment_method, payment_status)
+            VALUES (%s, %s, %s)
+        ''', (amount, payment_method, payment_status))
+        connection.commit()
+
+        # Get the last inserted payment_id
+        payment_id = cursor.lastrowid
+
+        # Insert into Booking table
+        print(transport_type)
+        cursor.execute('''
+            INSERT INTO Booking (customer_id, payment_id, transport_type, status, booking_date)
+            VALUES (%s, %s, %s, %s, %s)
+        ''', (user_id, payment_id, transport_type, status, booking_date))
+        connection.commit()
+
+        # Get the last inserted booking_id
+        booking_id = cursor.lastrowid
+
+        # Insert into T_Book_Includes table
+        # Assuming 'trf_pkey' is passed as part of the request, or you can query it from the T_Route_Follows table
+        trf_pkey = 1  # Example, replace with actual trf_pkey value
+        tickets_booked = 1  # Example, you can update this dynamically based on the actual booking
+
+        cursor.execute('''
+            INSERT INTO T_Book_Includes (booking_id, trf_pkey, tickets_booked)
+            VALUES (%s, %s, %s)
+        ''', (booking_id, trf_pkey, tickets_booked))
+        connection.commit()
+
+        cursor.close()
+        connection.close()
+
+        return jsonify({"success": True})
+
+    except Exception as e:
+        print(str(e))
+        return jsonify({"success": False, "error": str(e)})
 
 
 

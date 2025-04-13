@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Booking Page</title>
@@ -9,22 +10,26 @@
       padding: 2rem;
       background: #f2f2f2;
     }
+
     .container {
       background: white;
       padding: 2rem;
       max-width: 400px;
       margin: auto;
       border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
+
     h2 {
       margin-bottom: 1rem;
     }
+
     .item {
       font-size: 1.2rem;
       margin-bottom: 2rem;
       color: #333;
     }
+
     .btn {
       padding: 0.7rem 1.2rem;
       border: none;
@@ -33,16 +38,19 @@
       margin-right: 1rem;
       font-size: 1rem;
     }
+
     .pay {
       background-color: #28a745;
       color: white;
     }
+
     .cancel {
       background-color: #dc3545;
       color: white;
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <h2>Confirm Your Booking</h2>
@@ -52,20 +60,7 @@
     <button class="btn cancel" onclick="cancel()">Cancel</button>
   </div>
 
-  <script>
-    const params = new URLSearchParams(window.location.search);
-    const item = params.get("item");
-
-    document.getElementById("item-name").textContent = item ? `Item: ${item}` : "No item specified";
-
-    function payNow() {
-      alert("Payment process started for: " + item);
-      // Redirect to payment or submit form here
-    }
-
-    function cancel() {
-      window.history.back(); // Or window.location.href = "previous.html";
-    }
-  </script>
+  <script src="{{ url_for('static', filename='booking_script.js') }}"></script>
 </body>
+
 </html>
