@@ -22,7 +22,7 @@ app = Flask(__name__)
 db_config = {
     'host': 'localhost',
     'user': 'root',
-    'password': '26april2005',
+    'password': 'Ujjval@2005',
     'database': 'TravelEase'
 }
 
@@ -914,7 +914,7 @@ def browse_itinerary():
 @app.route('/browse_hotels')
 def browse_hotels():
     user_id = request.args.get('user_id', type=int)
-    return render_template('browse_hotels.html', user_id = user_id)
+    return render_template('browse_hotels.html')
 
 
 @app.route('/browse_trains')
@@ -1093,15 +1093,11 @@ def api_search_itineraries():
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
         query = """
-            SELECT *, avg_rating, num_rating
-            FROM Itinerary INNER JOIN (
-                SELECT item_id, AVG(rating) as avg_rating, COUNT(rating) as num_rating
-                FROM Reviews WHERE item_type = 'Itinerary'GROUP BY item_id
-            ) AS collated_reviews
-            ON collated_reviews.item_id = itinerary_id
+            SELECT *
+            FROM Itinerary
             WHERE destination_city = %s
               AND destination_state = %s
-              AND destination_country = %s
+              AND destination_country   = %s
         """
         cursor.execute(query, (dest_city, dest_state, dest_country))
         raw_results = cursor.fetchall()
@@ -1113,8 +1109,6 @@ def api_search_itineraries():
 
             # Later in your route when building the result:
             results.append({
-                'avg_rating': row['avg_rating'],
-                'num_rating': row['num_rating'],
                 'itinerary_id': row['itinerary_id'],
                 'agency_id': row['agency_id'],
                 'description': row['description'],
@@ -1241,7 +1235,21 @@ def tget_booking_details():
         cursor = conn.cursor(dictionary=True)
 
         query = """
-            SELECT *,
+            SELECT
+              train_id,
+              route_id,
+              trf_pkey,
+              price,
+              available_seats,
+              arrival_time,
+              arrival_date,
+              departure_time,
+              departure_date,
+              arrival_location,
+              departure_location,
+              name,
+              capacity,
+              provider_id,
               TIMESTAMPDIFF(
                 MINUTE,
                 CONCAT(departure_date, ' ', departure_time),
@@ -1293,7 +1301,20 @@ def aget_booking_details():
 
         query = """
             SELECT
-              *,
+              airplane_id,
+              route_id,
+              arf_pkey,
+              price,
+              available_seats,
+              arrival_time,
+              arrival_date,
+              departure_time,
+              departure_date,
+              arrival_location,
+              departure_location,
+              name,
+              capacity,
+              provider_id,
               TIMESTAMPDIFF(
                 MINUTE,
                 CONCAT(departure_date, ' ', departure_time),
@@ -1368,43 +1389,6 @@ def iget_booking_details():
 
     except mysql.connector.Error as err:
         app.logger.error(f"Itinerary search error: {err}")
-        return jsonify({'error': 'Server error'}), 500
-
-@app.route("/api/hget_booking_details")
-def hget_booking_details():
-    hotel_id = request.args.get("hotel_id")
-    if not hotel_id:
-        return jsonify({"error": "Missing Hotel id"}), 400
-
-    try:
-        conn = mysql.connector.connect(**db_config)
-        cursor = conn.cursor(dictionary=True)
-
-        query = """
-            SELECT *
-            FROM Hotel
-            WHERE  hotel_id= %s
-        """
-        cursor.execute(query, (hotel_id,))
-        row = cursor.fetchone()
-        cursor.close()
-        conn.close()
-
-        if not row:
-            return jsonify({'error': 'Hotel not found'}), 404
-        
-        result = {
-            'hotel_id': row['hotel_id'],
-            'name':row['name'],
-            'hotel_description': str(row['hotel_description']),
-            'price': str(row['price_per_night']),
-            'location': row['location'],
-        }
-
-        return jsonify(result)
-
-    except mysql.connector.Error as err:
-        app.logger.error(f"Hotel search error: {err}")
         return jsonify({'error': 'Server error'}), 500
 
 
@@ -1500,64 +1484,12 @@ def confirm_payment():
             connection.close()
 
             return jsonify({"success": True})
-        elif transport_type=="hotel":
-            # Get the last inserted booking_id
-            booking_id = cursor.lastrowid
-            from_date=payment_data['from_date']
-            to_date=payment_data['to_date']
-            # Insert into T_Book_Includes table
-            hotel_id = idd  # Example, replace with actual trf_pkey valuedynamically based on the actual booking
-            tickets_booked = count
-            print(tickets_booked)
-            cursor.execute('''
-                INSERT INTO H_Book_Includes (booking_id, hotel_id, check_in_date, check_out_date,room_booked)
-                VALUES (%s, %s, %s, %s, %s)
-            ''', (booking_id, hotel_id, from_date,to_date,tickets_booked))
-            connection.commit()
-
-            cursor.close()
-            connection.close()
-
-            return jsonify({"success": True})
     except Exception as e:
         print(str(e))
         return jsonify({"success": False, "error": str(e)})
 
 
-@app.route('/api/get_reviews', methods=['POST'])
-def get_reviews():
 
-    data = request.get_json()
-    item_id = data.get('item_id')
-    item_type = data.get('item_type')
-
-    if not all([item_id, item_type]):
-        return jsonify({'error': 'Missing fields'}), 400
-
-    try:
-        conn = mysql.connector.connect(**db_config)
-        cursor = conn.cursor(dictionary=True)
-
-        query = f"SELECT comment FROM reviews WHERE item_id = %s AND item_type = %s"
-
-        cursor.execute(query, (item_id, item_type))
-        raw_results = cursor.fetchall()
-        cursor.close()
-        conn.close()
-
-        results = []
-        for row in raw_results:
-
-            # Later in your route when building the result:
-            results.append({
-                'comment': row['comment']
-            })
-
-        return jsonify({'results': results})
-
-    except mysql.connector.Error as err:
-        app.logger.error(f"Itinerary search error: {err}")
-        return jsonify({'error': 'Server error'}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
