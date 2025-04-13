@@ -1,58 +1,54 @@
+// login_script.js
+
+// Toggle panels (your existing code)…
 const signUpButton = document.getElementById('signUp');
 const signInButton = document.getElementById('signIn');
-const container = document.getElementById('container');
+const container    = document.getElementById('container');
+signUpButton.addEventListener('click', () => container.classList.add("right-panel-active"));
+signInButton.addEventListener('click', () => container.classList.remove("right-panel-active"));
 
-signUpButton.addEventListener('click', () => {
-	container.classList.add("right-panel-active");
+// SIGN IN
+document.getElementById('signin-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const email     = this.querySelector('input[type="email"]').value;
+  const password  = this.querySelector('input[type="password"]').value;
+  const userType  = document.getElementById('signin-userType').value;
+
+  fetch('/signin', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password, userType })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      window.location.href = data.redirect;
+    } else {
+      alert('Login failed: ' + data.error);
+    }
+  });
 });
 
-signInButton.addEventListener('click', () => {
-	container.classList.remove("right-panel-active");
-});
+// SIGN UP (for completeness)
+document.getElementById('signup-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const name      = this.querySelector('input[placeholder="Full Name"]').value;
+  const email     = this.querySelector('input[type="email"]').value;
+  const password  = this.querySelector('input[type="password"]').value;
+  const userType  = document.getElementById('signup-userType').value;
 
-// Signup form submission
-document.querySelector(".sign-up-container form").addEventListener("submit", function (e) {
-    e.preventDefault();
-    const inputs = e.target.querySelectorAll("input");
-    const name = inputs[0].value;
-    const email = inputs[1].value;
-    const password = inputs[2].value;
-  
-    fetch("/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password })
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          alert("Account created!");
-        } else {
-          alert("Signup failed: " + data.error);
-        }
-      });
+  fetch('/signup', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, email, password, userType })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      alert('Account created! Please sign in.');
+      container.classList.remove("right-panel-active");
+    } else {
+      alert('Signup failed: ' + data.error);
+    }
   });
-  
-  // Signin form submission
-  document.querySelector(".sign-in-container form").addEventListener("submit", function (e) {
-    e.preventDefault();
-    const inputs = e.target.querySelectorAll("input");
-    const email = inputs[0].value;
-    const password = inputs[1].value;
-  
-    fetch("/signin", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password })
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          // redirect to profile
-          window.location.href = data.redirect;
-        } else {
-          alert("Login failed: " + data.error);
-        }
-      });
-  });
-  
+});
