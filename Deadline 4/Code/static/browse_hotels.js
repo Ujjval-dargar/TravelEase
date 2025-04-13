@@ -46,7 +46,6 @@ document.getElementById('hotel-search-form').addEventListener('submit', async fu
           <td>${h.available_rooms}</td>
           <td>${h.price}</td>
           <td>${h.rating}</td>
-          <td><a href="/booking?type=hotel&hotel_id=${encodeURIComponent(h.hotel_id)}&user_id=${encodeURIComponent(user_id)}&from_date=${from_date}&to_date=${to_date}" class="btn-book">Book</a></td>
         </tr>`;
 
   });
