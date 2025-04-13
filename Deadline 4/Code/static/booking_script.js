@@ -67,7 +67,7 @@ if (type == "train") {
     }
 
     const encodedItem = encodeURIComponent(itemName);
-    window.location.href = `/payment?item=${encodedItem}&price=${itemPrice}&user_id=${encodeURIComponent(user_id)}`;
+    window.location.href = `/payment?type=train&item=${encodedItem}&price=${itemPrice}&user_id=${encodeURIComponent(user_id)}`;
   }
 
   function cancel() {
@@ -141,7 +141,7 @@ if (type == "airplane") {
     }
 
     const encodedItem = encodeURIComponent(itemName);
-    window.location.href = `/payment?item=${encodedItem}&price=${itemPrice}&user_id=${encodeURIComponent(user_id)}`;
+    window.location.href = `/payment?type=airplane&item=${encodedItem}&price=${itemPrice}&user_id=${encodeURIComponent(user_id)}`;
   }
 
   function cancel() {

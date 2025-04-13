@@ -1,5 +1,6 @@
 // Extract item from URL
 const params = new URLSearchParams(window.location.search);
+const type=params.get("type");
 const item = params.get("item");
 const price = params.get("price");
 const user_id = params.get("user_id");
@@ -30,7 +31,7 @@ async function confirmPayment() {
         amount: price,
         payment_method: method,
         payment_status: 'Confirmed', // In real case, this should be dynamic based on payment gateway response
-        transport_type: 'Train', // You can update the type of booking dynamically
+        transport_type: type, // You can update the type of booking dynamically
         status: 'Confirmed', // Status of booking
         booking_date: new Date().toISOString().split('T')[0] // current date in 'YYYY-MM-DD' format
     };
