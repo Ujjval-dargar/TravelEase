@@ -43,7 +43,11 @@ document.getElementById('airplane-search-form').addEventListener('submit', async
         <td>${t.arrival_date} ${t.arrival_time}</td>
         <td>${t.travel_time_min}</td>
         <td>${t.price}</td>
-        <td><a href="/booking?type=airplane&arf_pkey=${encodeURIComponent(t.arf_pkey)}&user_id=${encodeURIComponent(user_id)}" class="btn-book">Book</a></td>
+        <td>
+          <div class="button-group">
+              <button class="btn-book" onclick="window.location.href='/booking?type=airplane&arf_pkey=${encodeURIComponent(t.arf_pkey)}&user_id=${encodeURIComponent(user_id)}'">Book</button></td>
+          </div>
+        </td>
       </tr>`;
   });
   html += '</table>';

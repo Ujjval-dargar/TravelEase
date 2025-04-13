@@ -46,6 +46,7 @@ document.getElementById('hotel-search-form').addEventListener('submit', async fu
           <td>${h.available_rooms}</td>
           <td>${h.price}</td>
           <td>${h.rating}</td>
+          
         </tr>`;
 
   });

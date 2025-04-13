@@ -92,7 +92,37 @@
       text-align: center;
       color: #888;
       font-style: italic;
+    } 
+    /* Buttons */
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      width: 120px; /* fixed width for all buttons */
+      margin: 0 auto;
     }
+  
+    .button-group button {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+  
+    .btn-book {
+      background-color: #007bff;
+      color: white;
+    }
+  
+    .btn-book:hover {
+      background-color: #0056b3;
+    }
+  
+
+
   </style>
 </head>
 
