@@ -33,13 +33,9 @@ document.getElementById('itinerary-search-form').addEventListener('submit', asyn
     }
 
     let html = '<table><tr>'
-        + '<th>Itinerary ID</th>'
         + '<th>Description</th>'
-        + '<th>City</th>'
-        + '<th>State</th>'
-        + '<th>Country</th>'
-        + '<th>Days</th>'
-        + '<th>Nights</th>'
+        + '<th>Location</th>'
+        + '<th>Duration</th>'
         + '<th>Price</th>'
         + '<th>Rating</th>'
         + '<th>Actions</th>'
@@ -48,15 +44,11 @@ document.getElementById('itinerary-search-form').addEventListener('submit', asyn
     itineraries.forEach(t => {
         const itineraryId = t.itinerary_id;
         html += `<tr>
-            <td>${itineraryId}</td>
             <td>${t.description}</td>
-            <td>${t.destination_city}</td>
-            <td>${t.destination_state}</td>
-            <td>${t.destination_country}</td>
-            <td>${t.duration_day}</td>
-            <td>${t.duration_night}</td>
+            <td>${t.destination_city}, ${t.destination_state}, ${t.destination_country}</td>
+            <td>${t.duration_day} days, ${t.duration_night} nights</td>
             <td>${t.price}</td>
-            <td>${renderStars(t.avg_rating)} <span class="rating-count">(${t.num_rating})</span></td>
+            <td class='rating'>${renderStars(t.avg_rating)} <span class="rating-count">(${t.num_rating})</span></td>
             <td>
                 <div class="button-group">
                     <button class="btn-book" onclick="window.location.href='/booking?type=itinerary&itinerary_id=${encodeURIComponent(t.itinerary_id)}&user_id=${encodeURIComponent(user_id)}'">Book</button>
