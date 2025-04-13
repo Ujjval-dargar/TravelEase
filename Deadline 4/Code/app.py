@@ -914,7 +914,7 @@ def browse_itinerary():
 @app.route('/browse_hotels')
 def browse_hotels():
     user_id = request.args.get('user_id', type=int)
-    return render_template('browse_hotels.html', user_id = user_id)
+    return render_template('browse_hotels.html',user_id=user_id)
 
 
 @app.route('/browse_trains')
@@ -1241,7 +1241,21 @@ def tget_booking_details():
         cursor = conn.cursor(dictionary=True)
 
         query = """
-            SELECT *,
+            SELECT
+              train_id,
+              route_id,
+              trf_pkey,
+              price,
+              available_seats,
+              arrival_time,
+              arrival_date,
+              departure_time,
+              departure_date,
+              arrival_location,
+              departure_location,
+              name,
+              capacity,
+              provider_id,
               TIMESTAMPDIFF(
                 MINUTE,
                 CONCAT(departure_date, ' ', departure_time),
@@ -1293,7 +1307,20 @@ def aget_booking_details():
 
         query = """
             SELECT
-              *,
+              airplane_id,
+              route_id,
+              arf_pkey,
+              price,
+              available_seats,
+              arrival_time,
+              arrival_date,
+              departure_time,
+              departure_date,
+              arrival_location,
+              departure_location,
+              name,
+              capacity,
+              provider_id,
               TIMESTAMPDIFF(
                 MINUTE,
                 CONCAT(departure_date, ' ', departure_time),

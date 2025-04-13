@@ -1,85 +1,328 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Payment Page</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       padding: 2rem;
-      background-color: #f2f2f2;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
-
+    
     .container {
-      max-width: 500px;
-      margin: auto;
+      max-width: 550px;
+      width: 100%;
+      margin: 1rem auto;
       background: white;
-      padding: 2rem;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      padding: 2.5rem;
+      border-radius: 12px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     }
-
+    
     h2 {
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
+      color: #2c3e50;
+      text-align: center;
+      font-weight: 600;
+      border-bottom: 2px solid #f1f1f1;
+      padding-bottom: 1rem;
     }
-
+    
     .item {
-      font-size: 1.2rem;
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+      color: #333;
+      background-color: #f8f9fa;
+      padding: 1rem;
+      border-radius: 8px;
+      border-left: 4px solid #3498db;
+    }
+    
+    .payment-methods {
+      background-color: #f8f9fa;
+      padding: 1.5rem;
+      border-radius: 8px;
       margin-bottom: 1.5rem;
     }
-
-    .payment-methods label {
-      display: block;
-      margin: 0.5rem 0;
+    
+    .payment-methods h3 {
+      margin-top: 0;
+      margin-bottom: 1rem;
+      color: #34495e;
     }
-
+    
+    .payment-methods label {
+      display: flex;
+      align-items: center;
+      margin: 0.8rem 0;
+      padding: 0.8rem;
+      background-color: white;
+      border-radius: 6px;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    
+    .payment-methods label:hover {
+      background-color: #ecf0f1;
+    }
+    
+    .payment-methods input[type="radio"] {
+      margin-right: 12px;
+      transform: scale(1.2);
+      accent-color: #3498db;
+    }
+    
     .buttons {
       margin-top: 2rem;
+      display: flex;
+      justify-content: space-between;
     }
-
+    
     .btn {
-      padding: 0.7rem 1.2rem;
+      padding: 0.9rem 1.5rem;
       font-size: 1rem;
       border: none;
-      border-radius: 5px;
+      border-radius: 6px;
       cursor: pointer;
+      font-weight: 600;
+      flex-grow: 1;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    
+    .confirm {
+      background-color: #3498db;
+      color: white;
       margin-right: 1rem;
     }
-
-    .confirm {
-      background-color: #007bff;
+    
+    .confirm:hover {
+      background-color: #2980b9;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(52, 152, 219, 0.2);
+    }
+    
+    .cancel {
+      background-color: #e74c3c;
       color: white;
     }
-
-    .cancel {
-      background-color: #dc3545;
+    
+    .cancel:hover {
+      background-color: #c0392b;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(231, 76, 60, 0.2);
+    }
+    
+    .coupon-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .coupon-section label {
+      font-weight: 600;
+      color: #34495e;
+    }
+    
+    .coupon-section .coupon-input-group {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .coupon-section input {
+      flex-grow: 1;
+      padding: 0.8rem 1rem;
+      font-size: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+    }
+    
+    .coupon-section input:focus {
+      outline: none;
+      border-color: #3498db;
+      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    }
+    
+    .coupon-section button {
+      background-color: #3498db;
       color: white;
+      border: none;
+      padding: 0.8rem 1.2rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+    
+    .coupon-section button:hover {
+      background-color: #2980b9;
+    }
+    
+    #coupon-message {
+      font-size: 0.9rem;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    table th, table td {
+      padding: 10px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    table th {
+      text-align: left;
+      color: #555;
+      width: 40%;
+    }
+    
+    table tr:last-child th, 
+    table tr:last-child td {
+      border-bottom: none;
+    }
+    
+    /* Popup styles */
+    .popup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      visibility: hidden;
+      opacity: 0;
+      transition: all 0.3s;
+    }
+    
+    .popup-content {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 8px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      text-align: center;
+      transform: translateY(-20px);
+      transition: all 0.3s;
+    }
+    
+    .popup-overlay.active {
+      visibility: visible;
+      opacity: 1;
+    }
+    
+    .popup-overlay.active .popup-content {
+      transform: translateY(0);
+    }
+    
+    .popup-message {
+      margin-bottom: 1.5rem;
+      font-size: 1.1rem;
+      color: #333;
+    }
+    
+    .popup-btn {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 0.7rem 1.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+    
+    .popup-btn:hover {
+      background-color: #2980b9;
     }
   </style>
 </head>
-
 <body>
   <div class="container">
-    <h2>Payment</h2>
-    <div class="item" id="item-name">Loading item...</div>
-
+    <h2>Payment Details</h2>
+    <div class="item" id="item-name">Loading item information...</div>
     <div id="payment-form">
       <div class="payment-methods">
+        <h3>Choose Payment Method</h3>
         <label><input type="radio" name="method" value="Credit Card" checked> Credit Card</label>
-        <label><input type="radio" name="method" value="Debit Card" checked> Debit Card</label>
+        <label><input type="radio" name="method" value="Debit Card"> Debit Card</label>
         <label><input type="radio" name="method" value="UPI"> UPI</label>
         <label><input type="radio" name="method" value="Net Banking"> Net Banking</label>
       </div>
-
       <div class="buttons">
         <button type="button" class="btn confirm" onclick="confirmPayment()">Confirm Payment</button>
         <button type="button" class="btn cancel" onclick="cancel()">Cancel</button>
       </div>
     </div>
   </div>
-
+  
+  <div class="coupon-section container">
+    <label for="coupon-code">Have a coupon?</label>
+    <div class="coupon-input-group">
+      <input type="text" id="coupon-code" placeholder="Enter coupon code" />
+      <button type="button" onclick="applyCoupon()">Apply</button>
+    </div>
+    <div id="coupon-message" style="color: green;"></div>
+  </div>
+  
+  <!-- Custom popup that will replace the alert -->
+  <div class="popup-overlay" id="popup">
+    <div class="popup-content">
+      <div class="popup-message" id="popup-message"></div>
+      <button class="popup-btn" id="popup-btn">OK</button>
+    </div>
+  </div>
+  
   <script src="{{ url_for('static', filename='payment_script.js') }}"></script>
+  <script>
+    // Override the alert function without modifying the JS file
+    window.alert = function(message) {
+      document.getElementById('popup-message').textContent = message;
+      document.getElementById('popup').classList.add('active');
+      
+      // Make the OK button close the popup and redirect if necessary
+      const popupBtn = document.getElementById('popup-btn');
+      popupBtn.onclick = function() {
+        document.getElementById('popup').classList.remove('active');
+        
+        // Check if this is a success message that should trigger navigation
+        if (message.includes('Payment confirmed')) {
+          // Allow the popup to close before navigating
+          setTimeout(function() {
+            const user_id = new URLSearchParams(window.location.search).get("user_id");
+            window.location.href = '/profile?user_id=${user_id}';
+          }, 300);
+        }
+      };
+    };
+    
+    // Function for applying coupons (placeholder)
+    function applyCoupon() {
+      const couponCode = document.getElementById('coupon-code').value;
+      if (couponCode) {
+        document.getElementById('coupon-message').textContent = "Coupon applied successfully!";
+        
+        // In a real implementation, you would validate the coupon with the server
+        // and update the price accordingly
+      } else {
+        document.getElementById('coupon-message').textContent = "Please enter a coupon code.";
+        document.getElementById('coupon-message').style.color = "#e74c3c";
+      }
+    }
+  </script>
 </body>
-
 </html>
