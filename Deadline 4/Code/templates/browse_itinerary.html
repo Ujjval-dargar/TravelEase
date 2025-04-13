@@ -11,28 +11,28 @@
       margin: 40px;
       background: #f5f7fa;
     }
-
+  
     .container {
-      max-width: 800px;
+      max-width: 1000px;
       margin: auto;
       background: #fff;
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
-
+  
     h1 {
       text-align: center;
       color: #333;
     }
-
+  
     .top-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 20px;
     }
-
+  
     .btn-profile {
       padding: 8px 16px;
       background-color: #007bff;
@@ -40,18 +40,18 @@
       text-decoration: none;
       border-radius: 6px;
     }
-
+  
     .btn-profile:hover {
       background-color: #0056b3;
     }
-
+  
     form.search-form {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
       margin-bottom: 20px;
     }
-
+  
     form.search-form input,
     form.search-form button {
       padding: 8px;
@@ -59,41 +59,108 @@
       border: 1px solid #ccc;
       border-radius: 6px;
     }
-
+  
     form.search-form button {
       background-color: #28a745;
       color: white;
       border: none;
       cursor: pointer;
     }
-
+  
     form.search-form button:hover {
       background-color: #218838;
     }
-
+  
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 10px;
     }
-
+  
     th,
     td {
       padding: 10px;
       border: 1px solid #e0e0e0;
       text-align: center;
     }
-
+  
     th {
       background: #f0f0f0;
     }
-
+  
+    td:nth-child(9) {
+      font-size: 1.1rem;
+      color: #f5b301;
+    }
+  
     .no-results {
       text-align: center;
       color: #888;
       font-style: italic;
     }
+  
+    /* Buttons */
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      width: 120px; /* fixed width for all buttons */
+      margin: 0 auto;
+    }
+  
+    .button-group button {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+  
+    .btn-book {
+      background-color: #007bff;
+      color: white;
+    }
+  
+    .btn-book:hover {
+      background-color: #0056b3;
+    }
+  
+    .btn-show-reviews {
+      background-color: #ffc107;
+      color: #333;
+    }
+  
+    .btn-show-reviews:hover {
+      background-color: #e0a800;
+    }
+  
+    /* Reviews Section */
+    .reviews-row {
+      background: #f9f9f9;
+    }
+  
+    .review-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 10px 20px;
+      text-align: left;
+    }
+  
+    .review-card {
+      background-color: #ffffff;
+      border: 1px solid #ddd;
+      border-left: 4px solid #17a2b8;
+      border-radius: 8px;
+      padding: 12px 16px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      font-size: 0.95rem;
+      color: #333;
+    }
   </style>
+  
 </head>
 
 <body>
