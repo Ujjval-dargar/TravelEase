@@ -78,7 +78,13 @@
       </div>
     </div>
   </div>
-
+  <div class="coupon-section container" style="margin-top: 1rem;">
+    <label for="coupon">Have a coupon?</label>
+    <input type="text" id="coupon-code" placeholder="Enter coupon code" />
+    <button type="button" onclick="applyCoupon()">Apply</button>
+    <div id="coupon-message" style="color: green; margin-top: 0.5rem;"></div>
+  </div>
+  
   <script src="{{ url_for('static', filename='payment_script.js') }}"></script>
 </body>
 
