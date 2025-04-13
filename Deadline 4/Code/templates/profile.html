@@ -3,133 +3,483 @@
 <head>
     <title>Customer Profile</title>
     <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --danger: #dc2626;
+            --danger-hover: #b91c1c;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --bg-main: #eef2ff;
+            --bg-card: #ffffff;
+            --bg-form: #f8fafc;
+            --bg-table-hover: #f1f5f9;
+            --bg-table-header: #dbeafe;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --header-bg: #1e40af;
+            --header-text: #ffffff;
+            --nav-active: #3b82f6;
+            --nav-inactive: #64748b;
+            --nav-hover: #93c5fd;
+            --card-border: #dbeafe;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 40px;
-            background: #f5f7fa;
+            background: var(--bg-main);
+            color: var(--text-dark);
+            line-height: 1.6;
         }
+        
         .container {
-            max-width: 800px;
-            margin: auto;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
         }
+        
+        header {
+            margin-bottom: 2rem;
+        }
+        
         h1 {
-            color: #333;
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--text-dark);
         }
-        .profile-card {
-            border: 1px solid #ddd;
-            padding: 20px;
-            border-radius: 12px;
-            background-color: #fff;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-        /* New menu styles */
-        .menu {
+        
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 1.5rem 0;
+            color: var(--text-dark);
             display: flex;
-            justify-content: space-around;
-            margin: 30px 0;
-            padding: 0;
-            list-style: none;
-        }
-        .menu li {
-            margin: 0;
-        }
-        .menu a {
-            text-decoration: none;
-            padding: 10px 20px;
+            align-items: center;
+            background-color: var(--bg-table-header);
+            padding: 0.5rem 0.75rem;
             border-radius: 6px;
-            background-color: #007bff;
-            color: white;
-            font-weight: bold;
         }
-        .menu a:hover {
-            background-color: #0056b3;
+        
+        h2:before {
+            content: "";
+            display: inline-block;
+            width: 5px;
+            height: 24px;
+            background: var(--primary);
+            margin-right: 10px;
+            border-radius: 3px;
         }
-        .history {
-            margin-top: 40px;
+        
+        .profile-card {
+            border-radius: 12px;
+            padding: 1.5rem;
+            background-color: var(--bg-card);
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid var(--primary);
+            background-image: linear-gradient(to right, #f0f9ff, #f8fafc);
         }
+        
+        .profile-info {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .profile-actions {
+            margin-top: 1rem;
+        }
+        
+        .profile-card p {
+            margin-bottom: 0.75rem;
+            color: var(--text-dark);
+        }
+        
+        .profile-card strong {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        /* Navigation Bar Styles */
+        .nav-container {
+            background: var(--bg-card);
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-bar {
+            display: flex;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            position: relative;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .nav-item {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .nav-link {
+            display: block;
+            text-decoration: none;
+            color: var(--text-dark);
+            padding: 1rem 1.5rem;
+            font-weight: 500;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .nav-link:hover {
+            color: var(--primary);
+            background-color: rgba(219, 234, 254, 0.3);
+        }
+        
+        .nav-link.active {
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+            font-weight: 600;
+        }
+        
+        .nav-link .icon {
+            display: inline-block;
+            margin-right: 0.5rem;
+            width: 20px;
+            height: 20px;
+            stroke-width: 2;
+            stroke: currentColor;
+            fill: none;
+            vertical-align: -4px;
+        }
+        
+        /* Table Styles */
+        .history-section {
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            margin-top: 1.5rem;
+        }
+        
         table {
             width: 100%;
-            border-collapse: collapse;
-            background: white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-collapse: separate;
+            border-spacing: 0;
+            background: var(--bg-card);
+            border-radius: 8px;
+            overflow: hidden;
         }
+        
         th, td {
-            padding: 10px 12px;
-            border-bottom: 1px solid #e0e0e0;
-            text-align: center;
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
         }
+        
         th {
-            background-color: #f0f0f0;
-            font-weight: bold;
+            background-color: var(--bg-table-header);
+            font-weight: 600;
+            color: var(--text-dark);
+            position: sticky;
+            top: 0;
         }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        tbody tr:hover {
+            background-color: var(--bg-table-hover);
+        }
+        
         .btn {
-            margin-top: 20px;
-            padding: 10px 18px;
-            background-color: #007bff;
-            color: white;
-            border: none;
+            padding: 0.75rem 1.25rem;
             border-radius: 6px;
+            font-weight: 500;
             cursor: pointer;
             text-decoration: none;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            border: none;
+            outline: none;
+            gap: 0.5rem;
         }
-        .btn:hover {
-            background-color: #0056b3;
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
         }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: var(--danger-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.2);
+        }
+        
         .no-booking {
-            color: #888;
+            color: var(--text-muted);
             font-style: italic;
+            text-align: center;
+            padding: 2rem;
+            background-color: #f9fafb;
+            border-radius: 8px;
+            border: 1px dashed var(--border-color);
+        }
+        
+        /* Status badges */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .badge-success {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        
+        .badge-warning {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        
+        .badge-danger {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .badge-info {
+            background-color: #e0f2fe;
+            color: #0c4a6e;
+        }
+        
+        /* Payment method pill */
+        .payment-pill {
+            background-color: #f3f4f6;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            display: inline-block;
+            margin-top: 0.25rem;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .nav-bar {
+                flex-wrap: wrap;
+            }
+            
+            .nav-item {
+                flex: 1 0 50%;
+            }
+            
+            .profile-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .profile-actions {
+                margin-top: 1rem;
+                width: 100%;
+            }
+            
+            .btn {
+                width: 100%;
+                text-align: center;
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .nav-item {
+                flex: 1 0 100%;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Welcome, {{ customer.first_name }} {{ customer.last_name }}</h1>
-
+        <header>
+            <h1>Welcome, {{ customer.first_name }} {{ customer.last_name }}</h1>
+        </header>
+        
         <div class="profile-card">
-            <p><strong>Email:</strong> {{ customer.email or 'N/A' }}</p>
-            <p><strong>Mobile:</strong> {{ customer.mobile_number or 'N/A' }}</p>
-            <a href="/" class="btn" style="background-color: rgb(197, 29, 29);">Log Out</a>
+            <div class="profile-info">
+                <p><strong>Email:</strong> {{ customer.email or 'N/A' }}</p>
+                <p><strong>Mobile:</strong> {{ customer.mobile_number or 'N/A' }}</p>
+            </div>
+            <div class="profile-actions">
+                <a href="/" class="btn btn-danger">
+                    Log Out
+                </a>
+            </div>
         </div>
-
-        <!-- Navigation Menu -->
-        <ul class="menu">
-            
-            <li><a href="{{ url_for('browse_itinerary') }}?user_id={{ customer.customer_id }}">Browse Itinerary</a></li>
-            <li><a href="{{ url_for('browse_trains') }}?user_id={{ customer.customer_id }}">Browse Trains</a></li>
-            <li><a href="{{ url_for('browse_airplanes') }}?user_id={{ customer.customer_id }}">Browse Airplanes</a></li>
-            <li><a href="{{ url_for('browse_hotels') }}?user_id={{ customer.customer_id }}">Browse Hotels</a></li>
-        </ul>
-
-        <div class="history">
+        
+        <!-- Navigation Bar -->
+        <div class="nav-container">
+            <ul class="nav-bar">
+                <li class="nav-item">
+                    <a href="{{ url_for('browse_itinerary') }}?user_id={{ customer.customer_id }}" class="nav-link">
+                        <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                            <circle cx="12" cy="10" r="3"></circle>
+                        </svg>
+                        Browse Itineraries
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('browse_trains') }}?user_id={{ customer.customer_id }}" class="nav-link">
+                        <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                            <path d="M4 12h16"></path>
+                            <path d="M12 4v16"></path>
+                        </svg>
+                        Browse Trains
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('browse_airplanes') }}?user_id={{ customer.customer_id }}" class="nav-link">
+                        <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                        </svg>
+                        Browse Airplanes
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('browse_hotels') }}?user_id={{ customer.customer_id }}" class="nav-link">
+                        <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg>
+                        Browse Hotels
+                    </a>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="history-section">
             <h2>Booking History</h2>
-            {% if bookings %}
+            
+            <div class="table-container">
+                {% if bookings %}
                 <table>
-                    <tr>
-                        <th>Booking ID</th>
-                        <th>Mode</th>
-                        <th>Status</th>
-                        <th>Amount (₹)</th>
-                        <th>Payment Status</th>
-                        <th>Coupon</th>
-                        <th>Date</th>
-                    </tr>
-                    {% for b in bookings %}
-                    <tr>
-                        <td>{{ b.booking_id }}</td>
-                        <td>{{ b.transport_type }}</td>
-                        <td>{{ b.status }}</td>
-                        <td>{{ b.amount }}</td>
-                        <td>{{ b.payment_status }}<br>({{ b.payment_method }})</td>
-                        <td>{{ b.coupon_code or '—' }}</td>
-                        <td>{{ b.booking_date.strftime('%Y-%m-%d') }}</td>
-                    </tr>
-                    {% endfor %}
+                    <thead>
+                        <tr>
+                            <th>Booking ID</th>
+                            <th>Mode</th>
+                            <th>Status</th>
+                            <th>Amount (₹)</th>
+                            <th>Payment Status</th>
+                            <th>Coupon</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in bookings %}
+                        <tr>
+                            <td>#{{ b.booking_id }}</td>
+                            <td>
+                                <span class="badge badge-info">{{ b.transport_type }}</span>
+                            </td>
+                            <td>
+                                {% if b.status == 'Confirmed' %}
+                                <span class="badge badge-success">{{ b.status }}</span>
+                                {% elif b.status == 'Pending' %}
+                                <span class="badge badge-warning">{{ b.status }}</span>
+                                {% elif b.status == 'Cancelled' %}
+                                <span class="badge badge-danger">{{ b.status }}</span>
+                                {% else %}
+                                <span class="badge">{{ b.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td>₹{{ b.amount }}</td>
+                            <td>
+                                {% if b.payment_status == 'Paid' %}
+                                <span class="badge badge-success">{{ b.payment_status }}</span>
+                                {% elif b.payment_status == 'Pending' %}
+                                <span class="badge badge-warning">{{ b.payment_status }}</span>
+                                {% elif b.payment_status == 'Failed' %}
+                                <span class="badge badge-danger">{{ b.payment_status }}</span>
+                                {% else %}
+                                <span class="badge">{{ b.payment_status }}</span>
+                                {% endif %}
+                                <div class="payment-pill">{{ b.payment_method }}</div>
+                            </td>
+                            <td>
+                                {% if b.coupon_code %}
+                                <span class="badge badge-info">{{ b.coupon_code }}</span>
+                                {% else %}
+                                —
+                                {% endif %}
+                            </td>
+                            <td>{{ b.booking_date.strftime('%Y-%m-%d') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
                 </table>
-            {% else %}
-                <p class="no-booking">No bookings yet.</p>
-            {% endif %}
+                {% else %}
+                <p class="no-booking">No bookings yet. Start exploring travel options using the navigation menu above!</p>
+                {% endif %}
+            </div>
         </div>
     </div>
+
+    <script>
+        // Get current page URL path
+        const currentPath = window.location.pathname;
+        
+        // Find all nav links
+        const navLinks = document.querySelectorAll('.nav-link');
+        
+        // Check which nav link matches current path and add active class
+        navLinks.forEach(link => {
+            const linkPath = new URL(link.href).pathname;
+            if (currentPath === linkPath) {
+                link.classList.add('active');
+            }
+        });
+    </script>
 </body>
 </html>

@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Browse Hotels</title>
+  <title>Browse Trains</title>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -99,21 +99,21 @@
 <body>
   <div class="container">
     <div class="top-bar">
-      <h1>Browse Hotels</h1>
+      <h1>Browse Trains</h1>
       <a href="{{ url_for('profile') }}?user_id={{ user_id }}" class="btn-profile">Profile</a>
     </div>
 
-    <form class="search-form" id="hotel-search-form">
+    <form class="search-form" id="train-search-form">
+      <input type="text" id="departure_location" placeholder="Departure (e.g. Surat)" required />
       <input type="text" id="arrival_location" placeholder="Arrival (e.g. Mumbai)" required />
-      <input type="date" id="from_date" required />
-      <input type="date" id="to_date" required />
+      <input type="date" id="departure_date" required />
       <button type="submit">Search</button>
     </form>
 
     <div id="results-container"></div>
   </div>
 
-  <script src="{{ url_for('static', filename='browse_hotels.js') }}"></script>
+  <script src="{{ url_for('static', filename='browse_trains.js') }}"></script>
 </body>
 
 </html>
