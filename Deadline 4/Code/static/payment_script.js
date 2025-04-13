@@ -6,6 +6,8 @@ const count = params.get("ticketcount");
 const price = params.get("price");
 const user_id = params.get("user_id");
 const id=params.get("id");
+const from_date=params.get("from_date");
+const to_date=params.get("to_date");
 if (!(item && price)) {
     document.getElementById("item-name").innerHTML = "No item specified";
 }
@@ -36,7 +38,9 @@ async function confirmPayment() {
         transport_type: type, // You can update the type of booking dynamically
         count:count,
         status: 'Confirmed', // Status of booking
-        booking_date: new Date().toISOString().split('T')[0] // current date in 'YYYY-MM-DD' format
+        booking_date: new Date().toISOString().split('T')[0], // current date in 'YYYY-MM-DD' format
+        from_date : from_date,
+        to_date : to_date
     };
     
     // Send payment details to the backend to insert into the database
