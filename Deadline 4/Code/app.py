@@ -75,20 +75,55 @@ def profile():
     if not user_id:
         return redirect(url_for('login_page'))
 
+    # 1) Fetch customer
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM Customer WHERE customer_id=%s", (user_id,))
+        cursor.execute(
+            "SELECT * FROM Customer WHERE customer_id=%s",
+            (user_id,)
+        )
         user = cursor.fetchone()
         cursor.close()
         conn.close()
-    except mysql.connector.Error:
-        user = None
+    except mysql.connector.Error as err:
+        app.logger.error(f"Error fetching customer {user_id}: {err}")
+        return "Internal Server Error", 500
 
     if not user:
         return "User not found", 404
 
-    return render_template('profile.html', user=user)
+    # 2) Fetch bookings + payment info
+    bookings = []
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT 
+              b.booking_id,
+              b.transport_type,
+              b.status,
+              b.booking_date,
+              p.amount,
+              p.payment_status,
+              p.payment_method,
+              b.coupon_code
+            FROM Booking b
+            JOIN Payment p ON b.payment_id = p.payment_id
+            WHERE b.customer_id = %s
+            ORDER BY b.booking_date DESC
+        """, (user_id,))
+        bookings = cursor.fetchall()
+        cursor.close()
+        conn.close()
+    except mysql.connector.Error as err:
+        app.logger.warning(f"Could not fetch bookings for {user_id}: {err}")
+
+    return render_template('profile.html',
+                           customer=user,
+                           bookings=bookings)
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
