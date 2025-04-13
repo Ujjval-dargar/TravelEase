@@ -35,7 +35,7 @@ async function confirmPayment() {
         status: 'Confirmed', // Status of booking
         booking_date: new Date().toISOString().split('T')[0] // current date in 'YYYY-MM-DD' format
     };
-
+    
     // Send payment details to the backend to insert into the database
     try {
         const response = await fetch('/api/confirm_payment', {
@@ -47,6 +47,7 @@ async function confirmPayment() {
         });
 
         const result = await response.json();
+        console.log(result);
         if (result.success) {
             alert(`Payment confirmed for "${item}" via ${method.toUpperCase()}`);
             window.location.href = `/profile?user_id=${user_id}`;
@@ -58,7 +59,7 @@ async function confirmPayment() {
     }
 
 
-    window.location.href = `/profile?user_id=${user_id}`;
+    // window.location.href = `/profile?user_id=${user_id}`;
 }
 
 function cancel() {

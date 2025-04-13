@@ -566,6 +566,43 @@ def aget_booking_details():
         app.logger.error(f"Airplane search error: {err}")
         return jsonify({'error': 'Server error'}), 500
 
+@app.route("/api/iget_booking_details")
+def iget_booking_details():
+    itinerary_id = request.args.get("itinerary_id")
+    if not itinerary_id:
+        return jsonify({"error": "Missing itinerary_id"}), 400
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        query = """
+            SELECT *
+            FROM Itinerary
+            WHERE  itinerary_id= %s
+        """
+        cursor.execute(query, (itinerary_id,))
+        row = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        if not row:
+            return jsonify({'error': 'Itinerary not found'}), 404
+
+        result = {
+            'itinerary_id': row['itinerary_id'],
+            'duration_day': row['duration_day'],
+            'price': row['price'],
+            'description': row['description'],
+            'destination_city': str(row['destination_city']),
+        }
+
+        return jsonify(result)
+
+    except mysql.connector.Error as err:
+        app.logger.error(f"Itinerary search error: {err}")
+        return jsonify({'error': 'Server error'}), 500
+
 
 @app.route('/payment')
 def payment_page():
@@ -598,6 +635,7 @@ def confirm_payment():
         payment_id = cursor.lastrowid
 
         # Insert into Booking table
+        print(transport_type)
         cursor.execute('''
             INSERT INTO Booking (customer_id, payment_id, transport_type, status, booking_date)
             VALUES (%s, %s, %s, %s, %s)

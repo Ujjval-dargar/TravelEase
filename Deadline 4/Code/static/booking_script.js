@@ -148,4 +148,64 @@ if (type == "airplane") {
     window.history.back();
   }
 }
+if (type == "itinerary") {
+  const itinerary_id = params.get("itinerary_id");
+  const user_id = params.get("user_id");
 
+  async function loadBookingDetails() {
+    if (!itinerary_id) {
+      document.getElementById("item-name").textContent = "No Itinerary selected.";
+      return;
+    }
+
+    const res = await fetch(`/api/iget_booking_details?itinerary_id=${itinerary_id}`);
+    const data = await res.json();
+
+    if (data.error) {
+      document.getElementById("item-name").textContent = "Error: " + data.error;
+      return;
+    }
+
+    // Store item and price globally
+    itemName = `${data.description}`;
+    itemPrice = data.price;
+    itemDest=data.destination_city;
+    itemday=data.duration_day;
+    document.getElementById("item-name").innerHTML = `
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <th style="text-align: left; padding: 8px;">Itnerary Description</th>
+            <td style="padding: 8px;">${data.description}</td>
+          </tr>
+          <tr>
+            <th style="text-align: left; padding: 8px;">Destination City</th>
+            <td style="padding: 8px;">${data.destination_city}</td>
+          </tr>
+          <tr>
+            <th style="text-align: left; padding: 8px;">Duration</th>
+            <td style="padding: 8px;">${data.duration_day}
+          </tr>
+          <tr>
+            <th style="text-align: left; padding: 8px;">Price</th>
+            <td style="padding: 8px;">${data.price}</td>
+          </tr>
+        </table>
+      `;
+  }
+
+  loadBookingDetails();
+
+  function payNow() {
+    if (!itemName || !itemPrice) {
+      alert("Booking details not loaded yet.");
+      return;
+    }
+
+    const encodedItem = encodeURIComponent(itemName);
+    window.location.href = `/payment?type=Itinerary&item=${encodedItem}&price=${itemPrice}&user_id=${encodeURIComponent(user_id)}`;
+  }
+
+  function cancel() {
+    window.history.back();
+  }
+}
