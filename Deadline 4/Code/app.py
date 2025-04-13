@@ -22,7 +22,7 @@ app = Flask(__name__)
 db_config = {
     'host': 'localhost',
     'user': 'root',
-    'password': 'Ujjval@2005',
+    'password': '26april2005',
     'database': 'TravelEase'
 }
 
@@ -1391,6 +1391,43 @@ def iget_booking_details():
         app.logger.error(f"Itinerary search error: {err}")
         return jsonify({'error': 'Server error'}), 500
 
+@app.route("/api/hget_booking_details")
+def hget_booking_details():
+    hotel_id = request.args.get("hotel_id")
+    if not hotel_id:
+        return jsonify({"error": "Missing Hotel id"}), 400
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        query = """
+            SELECT *
+            FROM Hotel
+            WHERE  hotel_id= %s
+        """
+        cursor.execute(query, (hotel_id,))
+        row = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        if not row:
+            return jsonify({'error': 'Hotel not found'}), 404
+        
+        result = {
+            'hotel_id': row['hotel_id'],
+            'name':row['name'],
+            'hotel_description': str(row['hotel_description']),
+            'price': str(row['price_per_night']),
+            'location': row['location'],
+        }
+
+        return jsonify(result)
+
+    except mysql.connector.Error as err:
+        app.logger.error(f"Hotel search error: {err}")
+        return jsonify({'error': 'Server error'}), 500
+
 
 @app.route('/payment')
 def payment_page():
@@ -1478,6 +1515,25 @@ def confirm_payment():
                 INSERT INTO I_Book_Includes (booking_id, itinerary_id, itinerary_start_date)
                 VALUES (%s, %s, %s)
             ''', (booking_id, itinerary_id, booking_date))
+            connection.commit()
+
+            cursor.close()
+            connection.close()
+
+            return jsonify({"success": True})
+        elif transport_type=="hotel":
+            # Get the last inserted booking_id
+            booking_id = cursor.lastrowid
+            from_date=payment_data['from_date']
+            to_date=payment_data['to_date']
+            # Insert into T_Book_Includes table
+            hotel_id = idd  # Example, replace with actual trf_pkey valuedynamically based on the actual booking
+            tickets_booked = count
+            print(tickets_booked)
+            cursor.execute('''
+                INSERT INTO H_Book_Includes (booking_id, hotel_id, check_in_date, check_out_date,room_booked)
+                VALUES (%s, %s, %s, %s, %s)
+            ''', (booking_id, hotel_id, from_date,to_date,tickets_booked))
             connection.commit()
 
             cursor.close()
