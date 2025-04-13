@@ -6,181 +6,471 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Browse Itinerary</title>
   <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --danger: #dc2626;
+      --danger-hover: #b91c1c;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --text-dark: #1e293b;
+      --text-muted: #64748b;
+      --bg-main: #eef2ff;
+      --bg-card: #ffffff;
+      --bg-form: #f8fafc;
+      --bg-table-hover: #f1f5f9;
+      --bg-table-header: #dbeafe;
+      --border-color: #e2e8f0;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+      --header-bg: #1e40af;
+      --header-text: #ffffff;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 40px;
-      background: #f5f7fa;
+      background: var(--bg-main);
+      color: var(--text-dark);
+      line-height: 1.6;
+      padding: 2rem;
     }
-  
+    
     .container {
       max-width: 1000px;
-      margin: auto;
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      margin: 0 auto;
+      background: var(--bg-card);
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: var(--shadow-md);
     }
-  
-    h1 {
-      text-align: center;
-      color: #333;
-    }
-  
+    
     .top-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
     }
-  
+    
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin: 0;
+    }
+    
     .btn-profile {
-      padding: 8px 16px;
-      background-color: #007bff;
-      color: white;
+      padding: 0.75rem 1.25rem;
+      border-radius: 6px;
+      font-weight: 500;
+      cursor: pointer;
       text-decoration: none;
-      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      border: none;
+      outline: none;
+      background-color: var(--primary);
+      color: white;
     }
-  
+    
     .btn-profile:hover {
-      background-color: #0056b3;
+      background-color: var(--primary-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
     }
-  
-    form.search-form {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 20px;
+    
+    .search-form {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background-color: var(--bg-form);
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
     }
-  
-    form.search-form input,
-    form.search-form button {
-      padding: 8px;
-      font-size: 1rem;
-      border: 1px solid #ccc;
+    
+    .search-form input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--border-color);
       border-radius: 6px;
+      font-size: 1rem;
+      transition: all 0.2s ease;
     }
-  
-    form.search-form button {
-      background-color: #28a745;
+    
+    .search-form input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    
+    .search-form button {
+      grid-column: 1 / -1;
+      padding: 0.75rem;
+      background-color: var(--success);
       color: white;
       border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 500;
       cursor: pointer;
+      transition: all 0.2s ease;
     }
-  
-    form.search-form button:hover {
-      background-color: #218838;
+    
+    .search-form button:hover {
+      background-color: #0ca678;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);
     }
-  
+    
+    .table-container {
+      overflow-x: auto;
+      margin-top: 1.5rem;
+      border-radius: 8px;
+      box-shadow: var(--shadow-sm);
+    }
+    
     table {
       width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
+      border-collapse: separate;
+      border-spacing: 0;
+      background: var(--bg-card);
+      border-radius: 8px;
+      overflow: hidden;
     }
-  
-    th,
-    td {
-      padding: 10px;
-      border: 1px solid #e0e0e0;
-      text-align: center;
+    
+    th, td {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
     }
-  
+    
     th {
-      background: #f0f0f0;
+      background-color: var(--bg-table-header);
+      font-weight: 600;
+      color: var(--text-dark);
+      position: sticky;
+      top: 0;
     }
-  
-    td.rating {
-      font-size: 1.1rem;
-      color: #f5b301;
+    
+    tr:last-child td {
+      border-bottom: none;
     }
-  
+    
+    tbody tr:hover {
+      background-color: var(--bg-table-hover);
+    }
+    
     .no-results {
       text-align: center;
-      color: #888;
+      color: var(--text-muted);
       font-style: italic;
-    }
-  
-    /* Buttons */
-    .button-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      width: 120px; /* fixed width for all buttons */
-      margin: 0 auto;
-    }
-  
-    .button-group button {
-      padding: 8px 12px;
-      border: none;
-      border-radius: 6px;
-      font-size: 0.9rem;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-  
-    .btn-book {
-      background-color: #007bff;
-      color: white;
-    }
-  
-    .btn-book:hover {
-      background-color: #0056b3;
-    }
-  
-    .btn-show-reviews {
-      background-color: #ffc107;
-      color: #333;
-    }
-  
-    .btn-show-reviews:hover {
-      background-color: #e0a800;
-    }
-  
-    /* Reviews Section */
-    .reviews-row {
-      background: #f9f9f9;
-    }
-  
-    .review-container {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      padding: 10px 20px;
-      text-align: left;
-    }
-  
-    .review-card {
-      background-color: #ffffff;
-      border: 1px solid #ddd;
-      border-left: 4px solid #17a2b8;
+      padding: 2rem;
+      background-color: #f9fafb;
       border-radius: 8px;
-      padding: 12px 16px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-      font-size: 0.95rem;
-      color: #333;
+      border: 1px dashed var(--border-color);
+      margin-top: 1rem;
+    }
+    
+    .btn-book {
+      padding: 0.5rem 0.75rem;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.875rem;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .btn-book:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .search-form div {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .search-form label {
+      font-weight: 500;
+      color: var(--text-dark);
+      font-size: 0.9rem;
+    }
+    
+    /* Modal styles */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(3px);
+    }
+    
+    .modal {
+      background-color: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: var(--shadow-lg);
+      animation: modalFadeIn 0.3s ease;
+    }
+    
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    
+    .modal-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    
+    .modal-icon {
+      margin-right: 1rem;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .modal-icon.success {
+      background-color: #dcfce7;
+      color: var(--success);
+    }
+    
+    .modal-icon.error {
+      background-color: #fee2e2;
+      color: var(--danger);
+    }
+    
+    .modal-icon.warning {
+      background-color: #fff7ed;
+      color: var(--warning);
+    }
+    
+    .modal-icon.info {
+      background-color: #dbeafe;
+      color: var(--primary);
+    }
+    
+    .modal-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    
+    .modal-content {
+      margin-bottom: 1.5rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+    
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
     }
   </style>
-  
 </head>
 
 <body>
   <div class="container">
     <div class="top-bar">
       <h1>Browse Itineraries</h1>
-      <a href="{{ url_for('profile') }}?user_id={{ user_id }}" class="btn-profile">Profile</a>
+      <a href="{{ url_for('profile') }}?user_id={{ user_id }}" class="btn-profile">My Profile</a>
     </div>
-
+    
     <form class="search-form" id="itinerary-search-form">
-      <input type="text" id="destination_city" placeholder="City (e.g. Agra)" required />
-      <input type="text" id="destination_state" placeholder="State (e.g. Uttar Pradesh)" required />
-      <input type="text" id="destination_country" placeholder="Country (e.g. India)" required />
-      <button type="submit">Search</button>
+      <div>
+        <label for="destination_city">City</label>
+        <input type="text" id="destination_city" placeholder="City (e.g. Agra)" required />
+      </div>
+      <div>
+        <label for="destination_state">State</label>
+        <input type="text" id="destination_state" placeholder="State (e.g. Uttar Pradesh)" required />
+      </div>
+      <div>
+        <label for="destination_country">Country</label>
+        <input type="text" id="destination_country" placeholder="Country (e.g. India)" required />
+      </div>
+      <button type="submit">Search Itineraries</button>
     </form>
-
+    
     <div id="results-container"></div>
   </div>
 
-  <script src="{{ url_for('static', filename='browse_itineraries.js') }}"></script>
+  <!-- Custom Modal for alerts -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="modal">
+      <div class="modal-header">
+        <div class="modal-icon" id="modalIcon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+        </div>
+        <h3 class="modal-title" id="modalTitle">Success</h3>
+      </div>
+      <div class="modal-content" id="modalContent">
+        Operation completed successfully.
+      </div>
+      <div class="modal-actions">
+        <button class="btn-profile" onclick="closeModal()">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const user_id = params.get("user_id");
+    
+    // Custom modal functions
+    function showModal(title, message, type = 'success') {
+      const modal = document.getElementById('modal');
+      const modalOverlay = document.getElementById('modalOverlay');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalContent = document.getElementById('modalContent');
+      const modalIcon = document.getElementById('modalIcon');
+      
+      modalTitle.textContent = title;
+      modalContent.textContent = message;
+      
+      // Set icon based on type
+      modalIcon.className = 'modal-icon ' + type;
+      
+      // Show different icon based on type
+      if (type === 'success') {
+        modalIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>`;
+      } else if (type === 'error') {
+        modalIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="15" y1="9" x2="9" y2="15"></line>
+          <line x1="9" y1="9" x2="15" y2="15"></line>
+        </svg>`;
+      } else if (type === 'warning') {
+        modalIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+          <line x1="12" y1="9" x2="12" y2="13"></line>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>`;
+      } else if (type === 'info') {
+        modalIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>`;
+      }
+      
+      modalOverlay.style.display = 'flex';
+    }
+    
+    function closeModal() {
+      document.getElementById('modalOverlay').style.display = 'none';
+    }
+
+    document.getElementById('itinerary-search-form').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const dest_city = document.getElementById('destination_city').value;
+      const dest_state = document.getElementById('destination_state').value;
+      const dest_country = document.getElementById('destination_country').value;
+      
+      try {
+        const res = await fetch('/api/search_itineraries', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            destination_city: dest_city, 
+            destination_state: dest_state, 
+            destination_country: dest_country 
+          })
+        });
+        
+        const data = await res.json();
+        const container = document.getElementById('results-container');
+        container.innerHTML = '';
+        
+        if (data.error) {
+          container.innerHTML = `<p class="no-results">${data.error}</p>`;
+          showModal('Error', data.error, 'error');
+          return;
+        }
+        
+        const itineraries = data.results;
+        if (!itineraries || !itineraries.length) {
+          container.innerHTML = `<p class="no-results">No itineraries found for this location.</p>`;
+          showModal('No Results', 'No itineraries found for this location.', 'info');
+          return;
+        }
+        
+        // Build table
+        let html = '<div class="table-container"><table><thead><tr>'
+          + '<th>Itinerary ID</th>'
+          + '<th>Description</th>'
+          + '<th>City</th>'
+          + '<th>State</th>'
+          + '<th>Country</th>'
+          + '<th>Days</th>'
+          + '<th>Nights</th>'
+          + '<th>Price</th>'
+          + '<th>Actions</th>'
+          + '</tr></thead><tbody>';
+          
+        itineraries.forEach(t => {
+          html += `<tr>
+            <td>${t.itinerary_id}</td>
+            <td>${t.description}</td>
+            <td>${t.destination_city}</td>
+            <td>${t.destination_state}</td>
+            <td>${t.destination_country}</td>
+            <td>${t.duration_day}</td>
+            <td>${t.duration_night}</td>
+            <td>₹${t.price}</td>
+            <td>
+              <a href="/booking?type=itinerary&itinerary_id=${encodeURIComponent(t.itinerary_id)}&user_id=${encodeURIComponent(user_id)}" class="btn-book">Book</a>
+            </td>
+          </tr>`;
+        });
+        
+        html += '</tbody></table></div>';
+        container.innerHTML = html;
+        
+        showModal('Success', 'Search completed successfully!', 'success');
+      } catch (error) {
+        console.error('Error:', error);
+        showModal('Error', 'An error occurred while searching for itineraries. Please try again.', 'error');
+      }
+    });
+  </script>
 </body>
 
 </html>
