@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Browse Trains</title>
   <style>
     body {
@@ -10,24 +11,28 @@
       margin: 40px;
       background: #f5f7fa;
     }
+
     .container {
       max-width: 800px;
       margin: auto;
       background: #fff;
       padding: 20px;
       border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
+
     h1 {
       text-align: center;
       color: #333;
     }
+
     .top-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 20px;
     }
+
     .btn-profile {
       padding: 8px 16px;
       background-color: #007bff;
@@ -35,15 +40,18 @@
       text-decoration: none;
       border-radius: 6px;
     }
+
     .btn-profile:hover {
       background-color: #0056b3;
     }
+
     form.search-form {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
       margin-bottom: 20px;
     }
+
     form.search-form input,
     form.search-form button {
       padding: 8px;
@@ -51,28 +59,35 @@
       border: 1px solid #ccc;
       border-radius: 6px;
     }
+
     form.search-form button {
       background-color: #28a745;
       color: white;
       border: none;
       cursor: pointer;
     }
+
     form.search-form button:hover {
       background-color: #218838;
     }
+
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 10px;
     }
-    th, td {
+
+    th,
+    td {
       padding: 10px;
       border: 1px solid #e0e0e0;
       text-align: center;
     }
+
     th {
       background: #f0f0f0;
     }
+
     .no-results {
       text-align: center;
       color: #888;
@@ -80,6 +95,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <div class="top-bar">
@@ -89,7 +105,7 @@
 
     <form class="search-form" id="train-search-form">
       <input type="text" id="departure_location" placeholder="Departure (e.g. Surat)" required />
-      <input type="text" id="arrival_location"   placeholder="Arrival (e.g. Mumbai)" required />
+      <input type="text" id="arrival_location" placeholder="Arrival (e.g. Mumbai)" required />
       <input type="date" id="departure_date" required />
       <button type="submit">Search</button>
     </form>
@@ -98,7 +114,10 @@
   </div>
 
   <script>
-    document.getElementById('train-search-form').addEventListener('submit', async function(e) {
+    const params = new URLSearchParams(window.location.search);
+    const user_id = params.get("user_id");
+
+    document.getElementById('train-search-form').addEventListener('submit', async function (e) {
       e.preventDefault();
       const dep_loc = document.getElementById('departure_location').value;
       const arr_loc = document.getElementById('arrival_location').value;
@@ -109,6 +128,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ departure_location: dep_loc, arrival_location: arr_loc, departure_date: dep_date })
       });
+
       const data = await res.json();
       const container = document.getElementById('results-container');
       container.innerHTML = '';
@@ -128,8 +148,10 @@
         + '<th>Train ID</th><th>Route</th><th>Train Name</th>'
         + '<th>Departure</th><th>Arrival</th><th>Travel Time (min)</th>'
         + '<th>Price</th>'
+        + '<th>Actions</th>'
         + '</tr>';
       trains.forEach(t => {
+        console.log(t);
         html += `<tr>
           <td>${t.train_id}</td>
           <td>${t.departure_location} → ${t.arrival_location}</td>
@@ -138,11 +160,17 @@
           <td>${t.arrival_date} ${t.arrival_time}</td>
           <td>${t.travel_time_min}</td>
           <td>${t.price}</td>
+          <td><a href="/booking?type=train&trf_pkey=${encodeURIComponent(t.trf_pkey)}&user_id=${encodeURIComponent(user_id)}" class="btn-book">Book</a></td>
         </tr>`;
+
       });
       html += '</table>';
       container.innerHTML = html;
+
     });
+
+  
   </script>
 </body>
+
 </html>

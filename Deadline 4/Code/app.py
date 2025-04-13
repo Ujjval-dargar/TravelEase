@@ -22,7 +22,7 @@ app = Flask(__name__)
 db_config = {
     'host': 'localhost',
     'user': 'root',
-    'password': 'Ujjval@2005',
+    'password': 'root',
     'database': 'TravelEase'
 }
 
@@ -289,6 +289,7 @@ def api_search_trains():
 
             # Later in your route when building the result:
             results.append({
+                'trf_pkey': row['trf_pkey'],
                 'train_id': row['train_id'],
                 'name': row['name'],
                 'departure_location': row['departure_location'],
@@ -379,6 +380,138 @@ def api_search_airplanes():
     except mysql.connector.Error as err:
         app.logger.error(f"Airplane search error: {err}")
         return jsonify({'error': 'Server error'}), 500
+    
+
+@app.route('/booking')
+def booking_page():
+    return render_template('booking.html')
+
+
+@app.route("/api/get_booking_details")
+def get_booking_details():
+    trf_pkey = request.args.get("trf_pkey")
+
+    if not trf_pkey:
+        return jsonify({"error": "Missing trf_pkey"}), 400
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        query = """
+            SELECT
+              train_id,
+              route_id,
+              trf_pkey,
+              price,
+              available_seats,
+              arrival_time,
+              arrival_date,
+              departure_time,
+              departure_date,
+              arrival_location,
+              departure_location,
+              name,
+              capacity,
+              provider_id,
+              TIMESTAMPDIFF(
+                MINUTE,
+                CONCAT(departure_date, ' ', departure_time),
+                CONCAT(arrival_date,   ' ', arrival_time)
+              ) AS travel_time_min
+            FROM T_Route_Follows
+            NATURAL JOIN TrainRoute
+            NATURAL JOIN Train
+            WHERE trf_pkey = %s
+        """
+        cursor.execute(query, (trf_pkey,))
+        row = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        if not row:
+            return jsonify({'error': 'Train not found'}), 404
+
+        result = {
+            'trf_pkey': row['trf_pkey'],
+            'train_id': row['train_id'],
+            'name': row['name'],
+            'departure_location': row['departure_location'],
+            'arrival_location': row['arrival_location'],
+            'departure_date': str(row['departure_date']),
+            'arrival_date': str(row['arrival_date']),
+            'departure_time': format_time_field(row['departure_time']),
+            'arrival_time': format_time_field(row['arrival_time']),
+            'travel_time_min': row['travel_time_min'],
+            'available_seats': row['available_seats'],
+            'price': float(row['price']),
+        }
+
+        return jsonify(result)
+
+    except mysql.connector.Error as err:
+        app.logger.error(f"Train search error: {err}")
+        return jsonify({'error': 'Server error'}), 500
+
+@app.route('/payment')
+def payment_page():
+    return render_template('payment.html')
+
+@app.route('/api/confirm_payment', methods=['POST'])
+def confirm_payment():
+    # Get payment data from the frontend
+    payment_data = request.get_json()
+    user_id = payment_data['user_id']
+    amount = payment_data['amount']
+    payment_method = payment_data['payment_method']
+    payment_status = payment_data['payment_status']
+    transport_type = payment_data['transport_type']
+    status = payment_data['status']
+    booking_date = payment_data['booking_date']
+
+    try:
+        connection = mysql.connector.connect(**db_config)
+        cursor = connection.cursor()
+
+        # Insert into Payment table
+        cursor.execute('''
+            INSERT INTO Payment (amount, payment_method, payment_status)
+            VALUES (%s, %s, %s)
+        ''', (amount, payment_method, payment_status))
+        connection.commit()
+
+        # Get the last inserted payment_id
+        payment_id = cursor.lastrowid
+
+        # Insert into Booking table
+        cursor.execute('''
+            INSERT INTO Booking (customer_id, payment_id, transport_type, status, booking_date)
+            VALUES (%s, %s, %s, %s, %s)
+        ''', (user_id, payment_id, transport_type, status, booking_date))
+        connection.commit()
+
+        # Get the last inserted booking_id
+        booking_id = cursor.lastrowid
+
+        # Insert into T_Book_Includes table
+        # Assuming 'trf_pkey' is passed as part of the request, or you can query it from the T_Route_Follows table
+        trf_pkey = 1  # Example, replace with actual trf_pkey value
+        tickets_booked = 1  # Example, you can update this dynamically based on the actual booking
+
+        cursor.execute('''
+            INSERT INTO T_Book_Includes (booking_id, trf_pkey, tickets_booked)
+            VALUES (%s, %s, %s)
+        ''', (booking_id, trf_pkey, tickets_booked))
+        connection.commit()
+
+        cursor.close()
+        connection.close()
+
+        return jsonify({"success": True})
+
+    except Exception as e:
+        print(str(e))
+        return jsonify({"success": False, "error": str(e)})
 
 if __name__ == '__main__':
     app.run(debug=True)
