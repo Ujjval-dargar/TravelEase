@@ -1,16 +1,16 @@
 const params = new URLSearchParams(window.location.search);
 const user_id = params.get("user_id");
 
-document.getElementById('train-search-form').addEventListener('submit', async function (e) {
+document.getElementById('hotel-search-form').addEventListener('submit', async function (e) {
   e.preventDefault();
-  const dep_loc = document.getElementById('departure_location').value;
   const arr_loc = document.getElementById('arrival_location').value;
-  const dep_date = document.getElementById('departure_date').value;
+  const from_date = document.getElementById('from_date').value;
+  const to_date = document.getElementById('to_date').value;
 
-  const res = await fetch('/api/search_trains', {
+  const res = await fetch('/api/search_hotels', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ departure_location: dep_loc, arrival_location: arr_loc, departure_date: dep_date })
+    body: JSON.stringify({ arrival_location: arr_loc, from_date: from_date ,to_date:to_date})
   });
 
   const data = await res.json();
@@ -21,30 +21,31 @@ document.getElementById('train-search-form').addEventListener('submit', async fu
     container.innerHTML = `<p class="no-results">${data.error}</p>`;
     return;
   }
-  const trains = data.results;
-  if (!trains.length) {
-    container.innerHTML = `<p class="no-results">No trains found.</p>`;
+  const hotels = data.results;
+  if (!hotels.length) {
+    container.innerHTML = `<p class="no-results">No Hotel found.</p>`;
     return;
   }
 
   // Build table
   let html = '<table><tr>'
-    + '<th>Train ID</th><th>Route</th><th>Train Name</th>'
-    + '<th>Departure</th><th>Arrival</th><th>Travel Time (min)</th>'
-    + '<th>Price</th>'
+    + '<th>Hotel ID</th><th>Hotel Name</th><th>Location</th>'
+    + '<th>Email</th><th>Mobile Number</th><th>Hotel Description</th><th>Available Rooms</th>'
+    + '<th>Price Per Night</th><th>Rating</th>'
     + '<th>Actions</th>'
     + '</tr>';
-  trains.forEach(t => {
-    console.log(t);
+  hotels.forEach(h => {
+    console.log(h);
     html += `<tr>
-          <td>${t.train_id}</td>
-          <td>${t.departure_location} → ${t.arrival_location}</td>
-          <td>${t.name}</td>
-          <td>${t.departure_date} ${t.departure_time}</td>
-          <td>${t.arrival_date} ${t.arrival_time}</td>
-          <td>${t.travel_time_min}</td>
-          <td>${t.price}</td>
-          <td><a href="/booking?type=train&trf_pkey=${encodeURIComponent(t.trf_pkey)}&user_id=${encodeURIComponent(user_id)}" class="btn-book">Book</a></td>
+          <td>${h.hotel_id}</td>
+          <td>${h.name}</td>
+          <td>${h.location}</td>
+          <td>${h.email}</td>
+          <td>${h.mobile_number}</td>
+          <td>${h.hotel_description}</td>
+          <td>${h.available_rooms}</td>
+          <td>${h.price}</td>
+          <td>${h.rating}</td>
         </tr>`;
 
   });

@@ -279,3 +279,129 @@ select:focus {
 	outline: none;
 	box-shadow: 0 0 5px rgba(255, 75, 43, 0.5);
 }
+
+/* Notification Popups */
+.notification-popup {
+	position: fixed;
+	top: 20px;
+	right: 20px;
+	min-width: 300px;
+	max-width: 400px;
+	background: white;
+	border-radius: 8px;
+	padding: 15px;
+	box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	z-index: 1000;
+	opacity: 0;
+	transform: translateY(-20px);
+	transition: all 0.3s ease;
+  }
+  
+  .notification-visible {
+	opacity: 1;
+	transform: translateY(0);
+  }
+  
+  .notification-hiding {
+	opacity: 0;
+	transform: translateY(-20px);
+  }
+  
+  .notification-content {
+	display: flex;
+	align-items: center;
+	flex: 1;
+  }
+  
+  .notification-icon {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+	margin-right: 12px;
+	font-weight: bold;
+  }
+  
+  .notification-popup.success {
+	border-left: 4px solid #4CAF50;
+  }
+  
+  .notification-popup.error {
+	border-left: 4px solid #F44336;  
+  }
+  
+  .notification-popup.info {
+	border-left: 4px solid #2196F3;
+  }
+  
+  .notification-popup.success .notification-icon {
+	background-color: #E8F5E9;
+	color: #4CAF50;
+  }
+  
+  .notification-popup.error .notification-icon {
+	background-color: #FFEBEE;
+	color: #F44336;
+  }
+  
+  .notification-popup.info .notification-icon {
+	background-color: #E3F2FD;
+	color: #2196F3;
+  }
+  
+  .notification-close {
+	background: none;
+	border: none;
+	font-size: 20px;
+	cursor: pointer;
+	color: #999;
+	padding: 0 5px;
+  }
+  
+  .notification-close:hover {
+	color: #333;
+  }
+  
+  /* Input validation styles */
+  input.input-error {
+	border: 1px solid #F44336 !important;
+	box-shadow: 0 0 5px rgba(244, 67, 54, 0.2) !important;
+  }
+  
+  /* Password strength indicator */
+  .password-strength {
+	margin-top: 5px;
+	font-size: 12px;
+	text-align: left;
+	width: 100%;
+	padding: 5px 0;
+  }
+  
+  .password-strength.weak {
+	color: #F44336;
+  }
+  
+  .password-strength.medium {
+	color: #FF9800;
+  }
+  
+  .password-strength.strong {
+	color: #4CAF50;
+  }
+  
+  /* Loading state for buttons */
+  button:disabled {
+	opacity: 0.7;
+	cursor: wait;
+  }
+  
+  /* Improved form focus styles */
+  input:focus, select:focus {
+	border: 1px solid rgba(255, 75, 43, 0.5);
+	box-shadow: 0 0 5px rgba(255, 75, 43, 0.3);
+  }

@@ -22,7 +22,7 @@ app = Flask(__name__)
 db_config = {
     'host': 'localhost',
     'user': 'root',
-    'password': '26april2005',
+    'password': 'Ujjval@2005',
     'database': 'TravelEase'
 }
 
@@ -907,14 +907,14 @@ def modify_hotel():
 
 @app.route('/browse_itinerary')
 def browse_itinerary():
-    return render_template('browse_itinerary.html')
+    user_id = request.args.get('user_id', type=int)
+    return render_template('browse_itinerary.html',user_id=user_id)
 
 
 @app.route('/browse_hotels')
 def browse_hotels():
+    user_id = request.args.get('user_id', type=int)
     return render_template('browse_hotels.html')
-
-
 
 
 @app.route('/browse_trains')
@@ -1077,6 +1077,7 @@ def api_search_airplanes():
         app.logger.error(f"Airplane search error: {err}")
         return jsonify({'error': 'Server error'}), 500
     
+
 @app.route('/api/search_itineraries', methods=['POST'])
 def api_search_itineraries():
 
@@ -1124,6 +1125,99 @@ def api_search_itineraries():
     except mysql.connector.Error as err:
         app.logger.error(f"Itinerary search error: {err}")
         return jsonify({'error': 'Server error'}), 500
+
+    
+@app.route('/api/search_hotels', methods=['POST'])
+def api_search_hotels():
+
+    data = request.get_json()
+    arr_loc = data.get('arrival_location')
+    from_date = data.get('from_date')
+    to_date = data.get('to_date')
+
+    print(data)
+
+    if not all([arr_loc, from_date, to_date]):
+        return jsonify({'error': 'Missing fields'}), 400
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        query = """
+            SELECT
+              h.hotel_id,
+              h.name,
+              h.location,
+              h.price_per_night,
+              h.email,
+              h.mobile_number,
+              h.total_rooms,
+              h.hotel_description,
+              h.provider_id,
+
+              (
+                h.total_rooms
+                - COALESCE(
+                    (
+                      SELECT SUM(hbi.room_booked)
+                      FROM H_Book_Includes hbi
+                      WHERE hbi.hotel_id = h.hotel_id
+                        AND hbi.check_in_date  <= %s
+                        AND hbi.check_out_date >= %s
+                    ), 0
+                  )
+              ) AS available_rooms,
+
+              (
+                SELECT AVG(r.rating)
+                FROM Reviews r
+                WHERE r.item_id   = h.hotel_id
+                  AND r.item_type = 'Hotel'
+              ) AS avg_rating,
+
+              (
+                SELECT COUNT(r.rating)
+                FROM Reviews r
+                WHERE r.item_id   = h.hotel_id
+                  AND r.item_type = 'Hotel'
+              ) AS rating_count
+
+            FROM Hotel h
+            WHERE h.location = %s;
+
+        """
+
+        
+        cursor.execute(query, (from_date, to_date, arr_loc))
+        raw_results = cursor.fetchall()
+        cursor.close()
+        conn.close()
+
+        results = []
+        for row in raw_results:
+
+            results.append({
+                'hotel_id': row['hotel_id'],
+                'name': row['name'],
+                'location': row['location'],
+                'email': row['email'],
+                'mobile_number': row['mobile_number'],
+                'hotel_description': str(row['hotel_description']),
+                'available_rooms': str(row['available_rooms']),
+                'price': str(row['price_per_night']),
+                'rating': row['rating_count']
+            })
+
+        print(results)
+        return jsonify({'results': results})
+
+    except mysql.connector.Error as err:
+        app.logger.error(f"Hotel search error: {err}")
+        return jsonify({'error': 'Server error'}), 500
+
+
+
+
 
 @app.route('/booking')
 def booking_page():

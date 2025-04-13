@@ -103,17 +103,17 @@
       <a href="{{ url_for('profile') }}?user_id={{ user_id }}" class="btn-profile">Profile</a>
     </div>
 
-    <form class="search-form" id="Hotel-search-form">
-      <input type="text" id="location" placeholder="Location (e.g. New Delhi)" required />
+    <form class="search-form" id="hotel-search-form">
       <input type="text" id="arrival_location" placeholder="Arrival (e.g. Mumbai)" required />
-      <input type="date" id="departure_date" required />
+      <input type="date" id="from_date" required />
+      <input type="date" id="to_date" required />
       <button type="submit">Search</button>
     </form>
 
     <div id="results-container"></div>
   </div>
 
-  <script src="{{ url_for('static', filename='browse_trains.js') }}"></script>
+  <script src="{{ url_for('static', filename='browse_hotels.js') }}"></script>
 </body>
 
 </html>
