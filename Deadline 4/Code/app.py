@@ -38,6 +38,7 @@ def signup():
     name = data.get('name')
     email = data.get('email')
     password = data.get('password')
+    user_type = data.get('userType')
 
     if not name or not password or not email:
         return jsonify({'success': False, 'error': 'Missing fields'}), 400
@@ -49,10 +50,37 @@ def signup():
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
-        cursor.execute("""
-            INSERT INTO Customer (first_name, last_name, email, password)
-            VALUES (%s, %s, %s, %s)
-        """, (first_name, last_name, email, password))
+
+        if (user_type == "customer"):
+            cursor.execute("""
+                INSERT INTO Customer (first_name, last_name, email, password)
+                VALUES (%s, %s, %s, %s)
+            """, (first_name, last_name, email, password))
+
+        elif (user_type == "T_transport"):
+            cursor.execute("""
+                INSERT INTO TransportProvider (name, email, password, service_type)
+                VALUES (%s, %s, %s, %s)
+            """, (name.strip(), email, password, "Train"))
+
+        elif (user_type == "A_transport"):
+            cursor.execute("""
+                INSERT INTO TransportProvider (name, email, password, service_type)
+                VALUES (%s, %s, %s, %s)
+            """, (name.strip(), email, password, "Airplane"))
+
+        elif (user_type == "hotel"):
+            cursor.execute("""
+                INSERT INTO AccommodationProvider (name, email, password)
+                VALUES (%s, %s, %s)
+            """, (name.strip(), email, password))
+
+        # elif (user_type == "agency"):
+        #     cursor.execute("""
+        #         INSERT INTO TourismAgency (name, email, password)
+        #         VALUES (%s, %s, %s)
+        #     """, (name.strip(), email, password))
+        
         conn.commit()
         cursor.close()
         conn.close()
@@ -66,17 +94,17 @@ def signin():
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')
-    user_type = data.get('userType')  # customer | transport | agency | hotel
+    user_type = data.get('userType')  # customer | T_transport | A_transport | agency | hotel
 
     app.logger.debug(
         f"Signin attempt: email={email!r}, user_type={user_type!r}")
 
-    # Map userType to table name, primary key field, and profile endpoint
     table_map = {
         'customer':  ('Customer',         'customer_id',    'profile'),
-        'transport': ('TransportProvider', 'provider_id',    'transport_profile'),
-        'agency':    ('TourismAgency',    'agency_id',      'agency_profile'),
+        'A_transport': ('TransportProvider', 'provider_id',    'A_transport_profile'),
+        'T_transport': ('TransportProvider', 'provider_id',    'T_transport_profile'),
         'hotel':     ('HotelProvider',    'hotel_id',       'hotel_profile'),
+        # 'agency':    ('TourismAgency',    'agency_id',      'agency_profile'),
     }
 
     if user_type not in table_map:
