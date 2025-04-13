@@ -22,7 +22,7 @@ app = Flask(__name__)
 db_config = {
     'host': 'localhost',
     'user': 'root',
-    'password': '26april2005',
+    'password': 'root',
     'database': 'TravelEase'
 }
 
@@ -1092,11 +1092,15 @@ def api_search_itineraries():
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
         query = """
-            SELECT *
-            FROM Itinerary
+            SELECT *, avg_rating, num_rating
+            FROM Itinerary INNER JOIN (
+                SELECT item_id, AVG(rating) as avg_rating, COUNT(rating) as num_rating
+                FROM Reviews WHERE item_type = 'Itinerary'GROUP BY item_id
+            ) AS collated_reviews
+            ON collated_reviews.item_id = itinerary_id
             WHERE destination_city = %s
               AND destination_state = %s
-              AND destination_country   = %s
+              AND destination_country = %s
         """
         cursor.execute(query, (dest_city, dest_state, dest_country))
         raw_results = cursor.fetchall()
@@ -1108,6 +1112,8 @@ def api_search_itineraries():
 
             # Later in your route when building the result:
             results.append({
+                'avg_rating': row['avg_rating'],
+                'num_rating': row['num_rating'],
                 'itinerary_id': row['itinerary_id'],
                 'agency_id': row['agency_id'],
                 'description': row['description'],
@@ -1141,21 +1147,7 @@ def tget_booking_details():
         cursor = conn.cursor(dictionary=True)
 
         query = """
-            SELECT
-              train_id,
-              route_id,
-              trf_pkey,
-              price,
-              available_seats,
-              arrival_time,
-              arrival_date,
-              departure_time,
-              departure_date,
-              arrival_location,
-              departure_location,
-              name,
-              capacity,
-              provider_id,
+            SELECT *,
               TIMESTAMPDIFF(
                 MINUTE,
                 CONCAT(departure_date, ' ', departure_time),
@@ -1207,20 +1199,7 @@ def aget_booking_details():
 
         query = """
             SELECT
-              airplane_id,
-              route_id,
-              arf_pkey,
-              price,
-              available_seats,
-              arrival_time,
-              arrival_date,
-              departure_time,
-              departure_date,
-              arrival_location,
-              departure_location,
-              name,
-              capacity,
-              provider_id,
+              *,
               TIMESTAMPDIFF(
                 MINUTE,
                 CONCAT(departure_date, ' ', departure_time),
@@ -1360,7 +1339,40 @@ def confirm_payment():
         return jsonify({"success": False, "error": str(e)})
 
 
+@app.route('/api/get_reviews', methods=['POST'])
+def get_reviews():
 
+    data = request.get_json()
+    item_id = data.get('item_id')
+    item_type = data.get('item_type')
+
+    if not all([item_id, item_type]):
+        return jsonify({'error': 'Missing fields'}), 400
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        query = f"SELECT comment FROM reviews WHERE item_id = %s AND item_type = %s"
+
+        cursor.execute(query, (item_id, item_type))
+        raw_results = cursor.fetchall()
+        cursor.close()
+        conn.close()
+
+        results = []
+        for row in raw_results:
+
+            # Later in your route when building the result:
+            results.append({
+                'comment': row['comment']
+            })
+
+        return jsonify({'results': results})
+
+    except mysql.connector.Error as err:
+        app.logger.error(f"Itinerary search error: {err}")
+        return jsonify({'error': 'Server error'}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

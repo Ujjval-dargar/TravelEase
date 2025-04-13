@@ -13,7 +13,7 @@
     }
 
     .container {
-      max-width: 800px;
+      max-width: 1000px;
       margin: auto;
       background: #fff;
       padding: 20px;
@@ -84,6 +84,12 @@
       text-align: center;
     }
 
+    td:nth-child(9) {
+      font-size: 1.1rem;
+      color: #f5b301;
+    }
+
+
     th {
       background: #f0f0f0;
     }
@@ -92,6 +98,115 @@
       text-align: center;
       color: #888;
       font-style: italic;
+    }
+
+    .reviews-row {
+      background: #fdfdfd;
+      font-style: italic;
+    }
+
+    .review-container {
+      text-align: left;
+      padding: 10px;
+    }
+
+    /* Buttons */
+    .btn-book,
+    .btn-show-reviews {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      margin: 2px;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn-book {
+      background-color: #28a745;
+      color: white;
+    }
+
+    .btn-book:hover {
+      background-color: #218838;
+    }
+
+    .btn-show-reviews {
+      background-color: #17a2b8;
+      color: white;
+    }
+
+    .btn-show-reviews:hover {
+      background-color: #117a8b;
+    }
+
+    /* Review Row */
+    .reviews-row {
+      background: #f9f9f9;
+    }
+
+    .review-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 10px 20px;
+    }
+
+    .review-card {
+      background-color: #ffffff;
+      border: 1px solid #ddd;
+      border-left: 4px solid #17a2b8;
+      border-radius: 8px;
+      padding: 12px 16px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      font-size: 0.95rem;
+      color: #333;
+    }
+
+
+    .review-container ul {
+      list-style-type: disc;
+      padding-left: 20px;
+      margin: 0;
+    }
+
+    .review-container li {
+      margin-bottom: 8px;
+      border-left: 3px solid #ccc;
+      padding-left: 10px;
+    }
+
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .button-group button {
+      width: 100%;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn-book {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .btn-book:hover {
+      background-color: #0056b3;
+    }
+
+    .btn-show-reviews {
+      background-color: #ffc107;
+      color: #333;
+    }
+
+    .btn-show-reviews:hover {
+      background-color: #e0a800;
     }
   </style>
 </head>
@@ -104,18 +219,18 @@
     </div>
 
     <form class="search-form" id="itinerary-search-form">
-    <p>
-      <input type="text" id="destination_city" placeholder="City (e.g. Agra)" required />
-      <input type="text" id="destination_state" placeholder="State (e.g. Uttar Pradesh)" required />
-      <input type="text" id="destination_country" placeholder="Country (e.g. India)" required />
-    </p>
+      <p>
+        <input type="text" id="destination_city" placeholder="City (e.g. Agra)" required />
+        <input type="text" id="destination_state" placeholder="State (e.g. Uttar Pradesh)" required />
+        <input type="text" id="destination_country" placeholder="Country (e.g. India)" required />
+      </p>
 
-    <p>
+      <p>
         <!-- <input type="number" min="1" id="duration_day" placeholder="Days" required />
         <input type="number" min="1" id="duration_night" placeholder="Nights" required /> -->
         <button type="submit">Search</button>
-    </p>
-     
+      </p>
+
     </form>
 
     <div id="results-container"></div>
