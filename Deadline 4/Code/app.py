@@ -358,10 +358,12 @@ def api_search_airplanes():
         conn.close()
 
         results = []
+       
         for row in raw_results:
 
             # Later in your route when building the result:
             results.append({
+                'arf_pkey': row['arf_pkey'],
                 'airplane_id': row['airplane_id'],
                 'name': row['name'],
                 'departure_location': row['departure_location'],
@@ -374,7 +376,7 @@ def api_search_airplanes():
                 'available_seats': row['available_seats'],
                 'price': row['price'],
             })
-
+        print(results)
         return jsonify({'results': results})
 
     except mysql.connector.Error as err:
@@ -387,10 +389,9 @@ def booking_page():
     return render_template('booking.html')
 
 
-@app.route("/api/get_booking_details")
-def get_booking_details():
+@app.route("/api/tget_booking_details")
+def tget_booking_details():
     trf_pkey = request.args.get("trf_pkey")
-
     if not trf_pkey:
         return jsonify({"error": "Missing trf_pkey"}), 400
 
@@ -452,6 +453,72 @@ def get_booking_details():
     except mysql.connector.Error as err:
         app.logger.error(f"Train search error: {err}")
         return jsonify({'error': 'Server error'}), 500
+
+@app.route("/api/aget_booking_details")
+def aget_booking_details():
+    arf_pkey = request.args.get("arf_pkey")
+    if not arf_pkey:
+        return jsonify({"error": "Missing arf_pkey"}), 400
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        query = """
+            SELECT
+              airplane_id,
+              route_id,
+              arf_pkey,
+              price,
+              available_seats,
+              arrival_time,
+              arrival_date,
+              departure_time,
+              departure_date,
+              arrival_location,
+              departure_location,
+              name,
+              capacity,
+              provider_id,
+              TIMESTAMPDIFF(
+                MINUTE,
+                CONCAT(departure_date, ' ', departure_time),
+                CONCAT(arrival_date,   ' ', arrival_time)
+              ) AS travel_time_min
+            FROM A_Route_Follows
+            NATURAL JOIN AirplaneRoute
+            NATURAL JOIN Airplane
+            WHERE arf_pkey = %s
+        """
+        cursor.execute(query, (arf_pkey,))
+        row = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        if not row:
+            return jsonify({'error': 'Train not found'}), 404
+
+        result = {
+            'arf_pkey': row['arf_pkey'],
+            'airplane_id': row['airplane_id'],
+            'name': row['name'],
+            'departure_location': row['departure_location'],
+            'arrival_location': row['arrival_location'],
+            'departure_date': str(row['departure_date']),
+            'arrival_date': str(row['arrival_date']),
+            'departure_time': format_time_field(row['departure_time']),
+            'arrival_time': format_time_field(row['arrival_time']),
+            'travel_time_min': row['travel_time_min'],
+            'available_seats': row['available_seats'],
+            'price': float(row['price']),
+        }
+
+        return jsonify(result)
+
+    except mysql.connector.Error as err:
+        app.logger.error(f"Airplane search error: {err}")
+        return jsonify({'error': 'Server error'}), 500
+
 
 @app.route('/payment')
 def payment_page():

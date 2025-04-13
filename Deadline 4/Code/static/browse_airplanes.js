@@ -6,12 +6,12 @@ document.getElementById('airplane-search-form').addEventListener('submit', async
     const dep_loc = document.getElementById('departure_location').value;
     const arr_loc = document.getElementById('arrival_location').value;
     const dep_date = document.getElementById('departure_date').value;
-
     const res = await fetch('/api/search_airplanes', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ departure_location: dep_loc, arrival_location: arr_loc, departure_date: dep_date })
     });
+
     const data = await res.json();
     const container = document.getElementById('results-container');
     container.innerHTML = '';
@@ -34,6 +34,7 @@ document.getElementById('airplane-search-form').addEventListener('submit', async
       +'<th>Actions</th>'
       + '</tr>';
     airplanes.forEach(t => {
+        console.log(t.arf_pkey);
       html += `<tr>
         <td>${t.airplane_id}</td>
         <td>${t.departure_location} → ${t.arrival_location}</td>

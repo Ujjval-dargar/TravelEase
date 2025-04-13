@@ -23,7 +23,6 @@ document.getElementById("item-name").innerHTML = `
 
 async function confirmPayment() {
     const method = document.querySelector('input[name="method"]:checked').value;
-    alert(`Payment confirmed for "${item}" via ${method.toUpperCase()}`);
     // Here you could redirect to a real payment gateway
     // Prepare the payment data to send to the backend
     const paymentData = {
