@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" href="{{ url_for('static', filename='profile_style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/profile_style.css') }}">
     <title>Customer Profile</title>
     
 </head>
 <body>
     <div class="container">
         <header>
-    <link rel="stylesheet" href="{{ url_for('static', filename='profile_style.css') }}">
             <h1>Welcome, {{ customer.first_name }} {{ customer.last_name }}</h1>
         </header>
         
@@ -143,6 +142,6 @@
     </div>
 
     
-    <script src="{{ url_for('static', filename='profile_script.js') }}"></script>
+    <script src="{{ url_for('static', filename='scripts/profile_script.js') }}"></script>
 </body>
 </html>
