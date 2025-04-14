@@ -29,6 +29,7 @@ async function confirmPayment() {
     const method = document.querySelector('input[name="method"]:checked').value;
     // Here you could redirect to a real payment gateway
     // Prepare the payment data to send to the backend
+    console.log(type);
     const paymentData = {
         id:id,
         user_id: user_id,

@@ -22,7 +22,7 @@ app = Flask(__name__)
 db_config = {
     'host': 'localhost',
     'user': 'root',
-    'password': 'root',
+    'password': '26april2005',
     'database': 'TravelEase'
 }
 
@@ -1510,13 +1510,12 @@ def confirm_payment():
             connection.close()
 
             return jsonify({"success": True})
-        elif transport_type=="itinerary":
+        elif transport_type=="Itinerary":
             # Get the last inserted booking_id
             booking_id = cursor.lastrowid
 
             # Insert into T_Book_Includes table
             itinerary_id = idd  # Example, replace with actual trf_pkey valuedynamically based on the actual booking
-
             cursor.execute('''
                 INSERT INTO I_Book_Includes (booking_id, itinerary_id, itinerary_start_date)
                 VALUES (%s, %s, %s)
