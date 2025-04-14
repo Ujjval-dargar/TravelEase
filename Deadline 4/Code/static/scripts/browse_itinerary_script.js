@@ -87,12 +87,9 @@ const params = new URLSearchParams(window.location.search);
         
         // Build table
         let html = '<div class="table-container"><table><thead><tr>'
-          + '<th>Itinerary ID</th>'
           + '<th>Description</th>'
-          + '<th>City</th>'
-          + '<th>State</th>'
-          + '<th>Country</th>'
-          + '<th>Days</th>'
+          + '<th>Location</th>'
+          + '<th>Duration</th>'
           + '<th>Nights</th>'
           + '<th>Price</th>'
           + '<th>Actions</th>'
@@ -100,13 +97,9 @@ const params = new URLSearchParams(window.location.search);
           
         itineraries.forEach(t => {
           html += `<tr>
-            <td>${t.itinerary_id}</td>
             <td>${t.description}</td>
-            <td>${t.destination_city}</td>
-            <td>${t.destination_state}</td>
-            <td>${t.destination_country}</td>
-            <td>${t.duration_day}</td>
-            <td>${t.duration_night}</td>
+            <td>${t.destination_city}, ${t.destination_state}, ${t.destination_country}</td>
+            <td>${t.duration_day} days, ${t.duration_night} nights</td>
             <td>₹${t.price}</td>
             <td>
               <a href="/booking?type=itinerary&itinerary_id=${encodeURIComponent(t.itinerary_id)}&user_id=${encodeURIComponent(user_id)}" class="btn-book">Book</a>

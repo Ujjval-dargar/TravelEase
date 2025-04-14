@@ -37,7 +37,6 @@ document.getElementById('hotel-search-form').addEventListener('submit', async fu
   hotels.forEach(h => {
     console.log(h);
     html += `<tr>
-          <td>${h.hotel_id}</td>
           <td>${h.name}</td>
           <td>${h.location}</td>
           <td>${h.email}</td>
