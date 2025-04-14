@@ -22,7 +22,7 @@ app = Flask(__name__)
 db_config = {
     'host': 'localhost',
     'user': 'root',
-    'password': 'root',
+    'password': 'Ujjval@2005',
     'database': 'TravelEase'
 }
 
@@ -1549,6 +1549,42 @@ def confirm_payment():
     except Exception as e:
         print(str(e))
         return jsonify({"success": False, "error": str(e)})
+
+
+@app.route('/api/apply-coupon', methods=['POST'])
+def apply_coupon():
+    data = request.json
+    coupon_code = data.get('couponCode')
+
+    if not coupon_code:
+        return jsonify({'success': False, 'message': 'No coupon code provided'}), 400
+
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor(dictionary=True)
+
+    query = """
+        SELECT * FROM Coupon
+        WHERE coupon_code = %s AND expiry_date > CURDATE()
+        ORDER BY discount_percentage DESC
+        LIMIT 1
+    """
+    cursor.execute(query, (coupon_code,))
+    result = cursor.fetchone()  
+
+    cursor.close()
+    conn.close()
+
+    if result:
+        return jsonify({
+            'success': True,
+            'message': 'Coupon applied successfully!',
+            'discount': result['discount_percentage']
+        })
+    else:
+        return jsonify({
+            'success': False,
+            'message': 'Invalid or expired coupon.'
+        }), 404
 
 
 @app.route('/api/get_reviews', methods=['POST'])
