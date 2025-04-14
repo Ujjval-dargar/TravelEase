@@ -44,7 +44,7 @@ document.getElementById('hotel-search-form').addEventListener('submit', async fu
           <td>${h.hotel_description}</td>
           <td>${h.available_rooms}</td>
           <td>${h.price}</td>
-          <td>${h.rating}</td>
+          <td>${renderStars(h.avg_rating, h.num_rating)}</td>
           <td><a href="/booking?type=hotel&hotel_id=${encodeURIComponent(h.hotel_id)}&user_id=${encodeURIComponent(user_id)}&from_date=${from_date}&to_date=${to_date}" class="btn-book">Book</a></td>
         </tr>`;
 
@@ -53,3 +53,19 @@ document.getElementById('hotel-search-form').addEventListener('submit', async fu
   container.innerHTML = html;
 
 });
+
+function renderStars(rating, numRatings = 0) {
+  if (rating == null || numRatings === 0) {
+    return `<span class="no-ratings">No ratings</span>`;
+  }
+
+  const fullStars = Math.floor(rating);
+  const halfStar = rating % 1 >= 0.5;
+  const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+
+  let stars = "★".repeat(fullStars);
+  stars += halfStar ? "½" : "";
+  stars += "☆".repeat(emptyStars);
+  
+  return `<span class="stars">${stars}</span> <span class="rating-count">(${numRatings})</span>`;
+}

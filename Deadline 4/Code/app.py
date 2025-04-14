@@ -1186,7 +1186,7 @@ def api_search_hotels():
                 FROM Reviews r
                 WHERE r.item_id   = h.hotel_id
                   AND r.item_type = 'Hotel'
-              ) AS rating_count
+              ) AS num_rating
 
             FROM Hotel h
             WHERE h.location = %s;
@@ -1211,7 +1211,8 @@ def api_search_hotels():
                 'hotel_description': str(row['hotel_description']),
                 'available_rooms': str(row['available_rooms']),
                 'price': str(row['price_per_night']),
-                'rating': row['rating_count']
+                'avg_rating': row['avg_rating'],
+                'num_rating': row['num_rating']
             })
 
         print(results)
