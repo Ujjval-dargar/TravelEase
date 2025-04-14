@@ -72,3 +72,39 @@ async function confirmPayment() {
 function cancel() {
     window.history.back(); // Or use: window.location.href = "booking.html";
 }
+
+// --- Appended from HTML ---
+// Override the alert function without modifying the JS file
+    window.alert = function(message) {
+      document.getElementById('popup-message').textContent = message;
+      document.getElementById('popup').classList.add('active');
+      
+      // Make the OK button close the popup and redirect if necessary
+      const popupBtn = document.getElementById('popup-btn');
+      popupBtn.onclick = function() {
+        document.getElementById('popup').classList.remove('active');
+        
+        // Check if this is a success message that should trigger navigation
+        if (message.includes('Payment confirmed')) {
+          // Allow the popup to close before navigating
+          setTimeout(function() {
+            const user_id = new URLSearchParams(window.location.search).get("user_id");
+            window.location.href = '/profile?user_id=${user_id}';
+          }, 300);
+        }
+      };
+    };
+    
+    // Function for applying coupons (placeholder)
+    function applyCoupon() {
+      const couponCode = document.getElementById('coupon-code').value;
+      if (couponCode) {
+        document.getElementById('coupon-message').textContent = "Coupon applied successfully!";
+        
+        // In a real implementation, you would validate the coupon with the server
+        // and update the price accordingly
+      } else {
+        document.getElementById('coupon-message').textContent = "Please enter a coupon code.";
+        document.getElementById('coupon-message').style.color = "#e74c3c";
+      }
+    }

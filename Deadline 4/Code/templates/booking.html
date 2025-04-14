@@ -36,16 +36,6 @@
   </div>
   
   <script src="{{ url_for('static', filename='booking_script.js') }}"></script>
-  <script>
-    // Override the alert function without modifying the JS file
-    window.alert = function(message) {
-      document.getElementById('popup-message').textContent = message;
-      document.getElementById('popup').classList.add('active');
-    };
-    
-    function closePopup() {
-      document.getElementById('popup').classList.remove('active');
-    }
-  </script>
+  
 </body>
 </html>

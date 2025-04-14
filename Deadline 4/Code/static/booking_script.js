@@ -297,3 +297,15 @@ if (type == "itinerary") {
     window.history.back();
   }
 }
+
+
+// --- Appended from HTML ---
+// Override the alert function without modifying the JS file
+    window.alert = function(message) {
+      document.getElementById('popup-message').textContent = message;
+      document.getElementById('popup').classList.add('active');
+    };
+    
+    function closePopup() {
+      document.getElementById('popup').classList.remove('active');
+    }
