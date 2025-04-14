@@ -103,8 +103,17 @@ document.getElementById('itinerary-search-form').addEventListener('submit', asyn
             <td>₹${t.price}</td>
             <td>${renderStars(t.avg_rating, t.num_rating)}</td>
             <td>
-              <a href="/booking?type=itinerary&itinerary_id=${encodeURIComponent(t.itinerary_id)}&user_id=${encodeURIComponent(user_id)}" class="btn-book">Book</a>
+              <div class="actions">
+                  <a href="/booking?type=itinerary&itinerary_id=${encodeURIComponent(t.itinerary_id)}&user_id=${encodeURIComponent(user_id)}" class="btn-book">Book</a>
+                  <button class="btn-show-reviews" data-itinerary-id="${t.itinerary_id}">Show Reviews</button>
+              </div>
             </td>
+
+          </tr>
+          <tr id="reviews-${t.itinerary_id}" class="reviews-row hidden">
+              <td colspan="6">
+                  <div class="reviews-container"></div>
+              </td>
           </tr>`;
     });
 
@@ -117,6 +126,67 @@ document.getElementById('itinerary-search-form').addEventListener('submit', asyn
     showModal('Error', 'An error occurred while searching for itineraries. Please try again.', 'error');
   }
 });
+
+// Handle "Show Reviews" button clicks
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('btn-show-reviews')) {
+      const button = e.target;
+      const itineraryId = button.getAttribute('data-itinerary-id');
+      const reviewsRow = document.getElementById(`reviews-${itineraryId}`);
+      const reviewsContainer = reviewsRow.querySelector('.reviews-container');
+
+      if (reviewsRow.classList.contains('hidden')) {
+          // Show reviews
+          if (!reviewsContainer.innerHTML.trim()) {
+              // Load reviews if not already loaded
+              loadReviews(itineraryId, reviewsContainer);
+          }
+          reviewsRow.classList.remove('hidden');
+          button.textContent = 'Hide Reviews';
+      } else {
+          // Hide reviews
+          reviewsRow.classList.add('hidden');
+          button.textContent = 'Show Reviews';
+      }
+  }
+});
+
+// Function to fetch and display reviews
+async function loadReviews(itineraryId, container) {
+  try {
+      container.innerHTML = '<p>Loading reviews...</p>';
+      const res = await fetch('/api/get_reviews', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ item_id: itineraryId, item_type: 'itinerary' })
+      });
+      const data = await res.json();
+
+      if (data.error) {
+          container.innerHTML = `<p class="error">${data.error}</p>`;
+          return;
+      }
+
+      const reviews = data.results;
+      if (!reviews || !reviews.length) {
+          container.innerHTML = `<p class="no-reviews">No reviews yet.</p>`;
+          return;
+      }
+
+      const ul = document.createElement('ul');
+      ul.className = 'reviews-list';
+      reviews.forEach(review => {
+          const li = document.createElement('li');
+          li.textContent = review.comment; // Safely set text content
+          ul.appendChild(li);
+      });
+      container.innerHTML = ''; // Clear loading message
+      container.appendChild(ul);
+  } catch (error) {
+      console.error('Error loading reviews:', error);
+      container.innerHTML = `<p class="error">Failed to load reviews.</p>`;
+  }
+}
 
 function renderStars(rating, numRatings = 0) {
   if (rating == null || numRatings === 0) {
