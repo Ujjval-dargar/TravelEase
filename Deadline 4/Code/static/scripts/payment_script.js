@@ -3,7 +3,7 @@ const params = new URLSearchParams(window.location.search);
 const type=params.get("type");
 const item = params.get("item");
 const count = params.get("ticketcount");
-const price = params.get("price");
+let savedPrice = params.get("price");
 let originalPrice = parseFloat(params.get("price"));
 let discountedPrice = originalPrice;
 const user_id = params.get("user_id");
@@ -11,7 +11,7 @@ const id=params.get("id");
 const from_date=params.get("from_date");
 const to_date=params.get("to_date");
 
-if (!(item && price)) {
+if (!(item && savedPrice)) {
     document.getElementById("item-name").innerHTML = "No item specified";
 }
 
@@ -23,7 +23,7 @@ document.getElementById("item-name").innerHTML = `
       </tr>
       <tr>
         <th style="text-align: left; padding: 8px;">Price</th>
-        <td style="padding: 8px;">${price}</td>
+        <td style="padding: 8px;">${savedPrice}</td>
       </tr>
     </table>
   `;
@@ -36,7 +36,7 @@ async function confirmPayment() {
     const paymentData = {
         id:id,
         user_id: user_id,
-        amount: price,
+        amount: savedPrice,
         payment_method: method,
         payment_status: 'Confirmed', // In real case, this should be dynamic based on payment gateway response
         transport_type: type, // You can update the type of booking dynamically
@@ -121,6 +121,7 @@ function cancel() {
         if (data.success) {
           const discount = data.discount;
           discountedPrice = originalPrice - (originalPrice * discount / 100);
+          savedPrice = discountedPrice;
     
           // Update UI
           messageEl.textContent = data.message + ` (${discount}% off)`;
@@ -142,6 +143,8 @@ function cancel() {
         } // When coupon is invalid
       else {
         discountedPrice = originalPrice; // Revert to original price
+        savedPrice = discountedPrice;
+
         messageEl.textContent = data.message;
         messageEl.style.color = "#e74c3c";
       
