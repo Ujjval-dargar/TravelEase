@@ -1,51 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/browse_trains_style.css') }}">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Browse Trains</title>
-  
+  <title>Browse Trains | TravelEase</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/browse_trains_style.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
-
 <body>
-  <div class="container">
-    <div class="top-bar">
-      <h1>Browse Trains</h1>
-      <a href="{{ url_for('profile') }}?user_id={{ user_id }}" class="btn btn-primary">My Profile</a>
+  <header class="site-header">
+    <div class="header-container">
+      <div class="logo">
+        <i class="fas fa-train"></i>
+        <span>TravelEase</span>
+      </div>
+      <nav>
+        <a href="{{ url_for('profile') }}?user_id={{ user_id }}" class="nav-link">
+          <i class="fas fa-user"></i> My Profile
+        </a>
+      </nav>
     </div>
+  </header>
 
-    <form class="search-form" id="train-search-form">
-        <div>
-          <label for="departure_location">Departure Location</label>
-          <input type="text" id="departure_location" placeholder="Departure (e.g. Surat)" required />
-        </div>
-        <div>
-          <label for="arrival_location">Arrival Location</label>
-          <input type="text" id="arrival_location" placeholder="Arrival (e.g. Mumbai)" required />
-        </div>
-        <div>
-          <label for="departure_date">Departure Date</label>
-          <input type="date" id="departure_date" required />
-        </div>
-        <button type="submit" class="btn-search">
-          Search Trains
-        </button>
-      </form>
+  <main>
+    <div class="container">
+      <div class="page-header">
+        <h1>Find Your Train</h1>
+        <p class="subtitle">Search routes, check schedules, and book tickets</p>
+      </div>
+      
+      <div class="search-card">
+        <form class="search-form" id="train-search-form">
+          <div class="search-inputs">
+            <div class="input-group">
+              <label for="departure_location">
+                <i class="fas fa-map-marker-alt"></i> From
+              </label>
+              <input type="text" id="departure_location" placeholder="Departure city" required />
+            </div>
+            
+            <div class="input-group">
+              <label for="arrival_location">
+                <i class="fas fa-map-marker"></i> To
+              </label>
+              <input type="text" id="arrival_location" placeholder="Arrival city" required />
+            </div>
+            
+            <div class="input-group">
+              <label for="departure_date">
+                <i class="far fa-calendar-alt"></i> Date
+              </label>
+              <input type="date" id="departure_date" required />
+            </div>
+          </div>
+          
+          <button type="submit" class="btn-search">
+            <i class="fas fa-search"></i> Find Trains
+          </button>
+        </form>
+      </div>
+      
+      <div id="results-container" class="results-section"></div>
+    </div>
+  </main>
 
-    <div id="results-container"></div>
-  </div>
-
-  <!-- Custom Modal for alerts -->
+  <!-- Modal dialog -->
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal" id="modal">
       <div class="modal-header">
         <div class="modal-icon" id="modalIcon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-            <polyline points="22 4 12 14.01 9 11.01"></polyline>
-          </svg>
+          <i class="fas fa-check-circle"></i>
         </div>
         <h3 class="modal-title" id="modalTitle">Success</h3>
       </div>
@@ -58,8 +85,6 @@
     </div>
   </div>
 
-  
-    <script src="{{ url_for('static', filename='scripts/browse_trains_script.js') }}"></script>
+  <script src="{{ url_for('static', filename='scripts/browse_trains_script.js') }}"></script>
 </body>
-
 </html>
