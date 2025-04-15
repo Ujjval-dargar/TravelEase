@@ -804,3 +804,30 @@ body {
     color: var(--text-dark);
     margin: 0;
 }
+
+textarea {
+    width: 100%;
+    padding: 1rem;  /* Increased padding for better spacing */
+    border: 1px solid rgb(57, 54, 54);  /* Increased border width to 2px */
+    border-radius: 8px;  /* Slightly more rounded corners */
+    font-size: 1rem;
+    font-family: 'Arial', sans-serif;  /* Consistent font family */
+    margin-bottom: 1.25rem;  /* Increased margin for better separation */
+    resize: vertical;  /* Allow vertical resizing */
+    box-sizing: border-box;  /* Ensures padding doesn't affect width */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;  /* Smooth transitions */
+}
+
+/* Focus state for better interactivity */
+textarea:focus {
+    border-color: #007bff;  /* Blue border on focus */
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);  /* Light blue shadow */
+    outline: none;  /* Removes default focus outline */
+}
+
+/* Placeholder text styling */
+textarea::placeholder {
+    color: #aaa;
+    font-style: italic;
+    font-size: 0.95rem;  /* Slightly smaller placeholder font */
+}
