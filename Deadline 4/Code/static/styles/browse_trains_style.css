@@ -1,9 +1,9 @@
 :root {
   /* Primary colors */
-  --primary: #3b82f6;
-  --primary-hover: #2563eb;
-  --primary-light: #dbeafe;
-  --primary-dark: #1e40af;
+  --primary: #4f46e5;
+  --primary-light: #6366f1;
+  --primary-dark: #4338ca;
+  --primary-hover: #7274ec;
   
   /* Functional colors */
   --success: #10b981;
