@@ -6,6 +6,8 @@ const count = params.get("ticketcount");
 let savedPrice = params.get("price");
 let originalPrice = parseFloat(params.get("price"));
 let discountedPrice = originalPrice;
+let couponCode = '';
+
 const user_id = params.get("user_id");
 const id=params.get("id");
 const from_date=params.get("from_date");
@@ -42,6 +44,7 @@ async function confirmPayment() {
         transport_type: type, // You can update the type of booking dynamically
         count:count,
         status: 'Confirmed', // Status of booking
+        coupon_code: couponCode,
         booking_date: new Date().toISOString().split('T')[0], // current date in 'YYYY-MM-DD' format
         from_date : from_date,
         to_date : to_date
@@ -100,7 +103,7 @@ function cancel() {
     
     // Function for applying coupons (placeholder)
     function applyCoupon() {
-      const couponCode = document.getElementById('coupon-code').value;
+      couponCode = document.getElementById('coupon-code').value;
       const messageEl = document.getElementById('coupon-message');
     
       if (!couponCode) {

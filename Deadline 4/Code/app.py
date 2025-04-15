@@ -1450,6 +1450,7 @@ def confirm_payment():
     payment_method = payment_data['payment_method']
     payment_status = payment_data['payment_status']
     transport_type = payment_data['transport_type']
+    coupon_code = payment_data['coupon_code']
     count=payment_data['count']
     status = payment_data['status']
     booking_date = payment_data['booking_date']
@@ -1469,11 +1470,21 @@ def confirm_payment():
         payment_id = cursor.lastrowid
 
         # Insert into Booking table
-        cursor.execute('''
-            INSERT INTO Booking (customer_id, payment_id, transport_type, status, booking_date)
-            VALUES (%s, %s, %s, %s, %s)
-        ''', (user_id, payment_id, transport_type, status, booking_date))
-        connection.commit()
+        if (coupon_code == ''):
+            cursor.execute('''
+                INSERT INTO Booking (customer_id, payment_id, transport_type, status, booking_date)
+                VALUES (%s, %s, %s, %s, %s)
+            ''', (user_id, payment_id, transport_type, status, booking_date))
+            connection.commit()
+
+        else:
+            print("here")
+            cursor.execute('''
+                INSERT INTO Booking (customer_id, payment_id, coupon_code, transport_type, status, booking_date)
+                VALUES (%s, %s, %s, %s, %s, %s)
+            ''', (user_id, payment_id, coupon_code, transport_type, status, booking_date))
+            connection.commit()
+
         if transport_type=="train":
             # Get the last inserted booking_id
             booking_id = cursor.lastrowid
