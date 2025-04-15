@@ -1609,7 +1609,12 @@ def get_reviews():
         conn.close()
 
         results = []
+        
         for row in raw_results:
+            comment = row['comment']
+
+            if len(comment) == 0 or comment.isspace():
+                continue
 
             # Later in your route when building the result:
             results.append({
