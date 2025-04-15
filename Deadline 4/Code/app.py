@@ -31,7 +31,7 @@ app = Flask(__name__)
 db_config = {
     'host': 'localhost',
     'user': 'root',
-    'password': 'Ujjval@2005',
+    'password': '26april2005',
     'database': 'TravelEase'
 }
 
@@ -127,6 +127,10 @@ def signin():
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
         query = f"SELECT * FROM {table} WHERE email=%s AND password=%s"
+        if user_type=='A_transport':
+            query = query + " AND service_type='Airplane'"
+        elif user_type=='T_transport':
+            query = query + " AND service_type='Train'"
         cursor.execute(query, (email, password))
         user = cursor.fetchone()
         cursor.close()
