@@ -1,46 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/browse_hotels_style.css') }}">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Browse Hotels</title>
-  
+  <title>Browse Hotels | TravelEase</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/browse_hotels_style.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="container">
-    <div class="top-bar">
-      <h1>Browse Hotels</h1>
-      <a href="{{ url_for('profile') }}?user_id={{ user_id }}" class="btn-profile">
-        <span>My Profile</span>
-      </a>
+  <header class="site-header">
+    <div class="header-container">
+      <div class="logo">
+        <i class="fas fa-bed"></i>
+        <span>TravelEase</span>
+      </div>
+      <nav>
+        <a href="{{ url_for('profile') }}?user_id={{ user_id }}" class="nav-link">
+          <i class="fas fa-user"></i> My Profile
+        </a>
+      </nav>
     </div>
-    
-    <div class="search-section">
-      <h2>Find Your Perfect Stay</h2>
-      <form class="search-form" id="hotel-search-form">
-        <div class="form-group">
-          <label for="arrival_location">Destination</label>
-          <input type="text" id="arrival_location" placeholder="Enter city (e.g. Mumbai)" required />
-        </div>
-        
-        <div class="form-group">
-          <label for="from_date">Check-in Date</label>
-          <input type="date" id="from_date" required />
-        </div>
-        
-        <div class="form-group">
-          <label for="to_date">Check-out Date</label>
-          <input type="date" id="to_date" required />
-        </div>
-        
-        <button type="submit" class="search-button">Search Hotels</button>
-      </form>
+  </header>
+
+  <main>
+    <div class="container">
+      <div class="page-header">
+        <h1>Find Your Hotel</h1>
+        <p class="subtitle">Search destinations, check availability and book your stay</p>
+      </div>
+      
+      <div class="search-card">
+        <form class="search-form" id="hotel-search-form">
+          <div class="search-inputs">
+            <div class="input-group">
+              <label for="arrival_location">
+                <i class="fas fa-map-marker-alt"></i> Destination
+              </label>
+              <input type="text" id="arrival_location" placeholder="Enter city (e.g. Mumbai)" required />
+            </div>
+            <div class="input-group">
+              <label for="from_date">
+                <i class="far fa-calendar-alt"></i> Check-in Date
+              </label>
+              <input type="date" id="from_date" required />
+            </div>
+            <div class="input-group">
+              <label for="to_date">
+                <i class="far fa-calendar-alt"></i> Check-out Date
+              </label>
+              <input type="date" id="to_date" required />
+            </div>
+          </div>
+          <button type="submit" class="btn-search">
+            <i class="fas fa-search"></i> Search Hotels
+          </button>
+        </form>
+      </div>
+      
+      <div id="results-container" class="results-section"></div>
     </div>
-    
-    <div id="results-container"></div>
-  </div>
-  
+  </main>
+
+  <!-- (Optional) You may add a modal here if needed following the pattern of the other pages -->
   <script src="{{ url_for('static', filename='scripts/browse_hotels_script.js') }}"></script>
 </body>
 </html>

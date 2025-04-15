@@ -1,149 +1,221 @@
-
-
-// --- Appended from HTML ---
 const params = new URLSearchParams(window.location.search);
-    const user_id = params.get("user_id");
+const user_id = params.get("user_id");
 
-    // Custom modal functions
-    function showModal(title, message, type = 'success') {
-      const modal = document.getElementById('modal');
-      const modalOverlay = document.getElementById('modalOverlay');
-      const modalTitle = document.getElementById('modalTitle');
-      const modalContent = document.getElementById('modalContent');
-      const modalIcon = document.getElementById('modalIcon');
-      
-      modalTitle.textContent = title;
-      modalContent.textContent = message;
-      
-      // Set icon based on type
-      modalIcon.className = 'modal-icon ' + type;
-      
-      // Show different icon based on type
-      if (type === 'success') {
-        modalIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-          <polyline points="22 4 12 14.01 9 11.01"></polyline>
-        </svg>`;
-      } else if (type === 'error') {
-        modalIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="15" y1="9" x2="9" y2="15"></line>
-          <line x1="9" y1="9" x2="15" y2="15"></line>
-        </svg>`;
-      } else if (type === 'warning') {
-        modalIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-          <line x1="12" y1="9" x2="12" y2="13"></line>
-          <line x1="12" y1="17" x2="12.01" y2="17"></line>
-        </svg>`;
-      } else if (type === 'info') {
-        modalIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="12" y1="16" x2="12" y2="12"></line>
-          <line x1="12" y1="8" x2="12.01" y2="8"></line>
-        </svg>`;
-      }
-      
-      modalOverlay.style.display = 'flex';
+// Set today's date as the minimum date for the date picker
+document.addEventListener('DOMContentLoaded', function() {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('departure_date').min = today;
+  document.getElementById('departure_date').value = today;
+});
+
+function showModal(title, message, type = 'success') {
+  const modal = document.getElementById('modal');
+  const modalOverlay = document.getElementById('modalOverlay');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalContent = document.getElementById('modalContent');
+  const modalIcon = document.getElementById('modalIcon');
+  
+  modalTitle.textContent = title;
+  modalContent.textContent = message;
+  
+  // Set icon class based on type
+  modalIcon.className = 'modal-icon ' + type;
+  
+  if (type === 'success') {
+    modalIcon.innerHTML = `<i class="fas fa-check-circle"></i>`;
+  } else if (type === 'error') {
+    modalIcon.innerHTML = `<i class="fas fa-times-circle"></i>`;
+  } else if (type === 'warning') {
+    modalIcon.innerHTML = `<i class="fas fa-exclamation-triangle"></i>`;
+  } else if (type === 'info') {
+    modalIcon.innerHTML = `<i class="fas fa-info-circle"></i>`;
+  }
+  
+  modalOverlay.style.display = 'flex';
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').style.display = 'none';
+}
+
+document.getElementById('airplane-search-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const dep_loc = document.getElementById('departure_location').value;
+  const arr_loc = document.getElementById('arrival_location').value;
+  const dep_date = document.getElementById('departure_date').value;
+  
+  const container = document.getElementById('results-container');
+  container.innerHTML = `
+    <div class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Searching for airplanes...</p>
+    </div>
+  `;
+  
+  try {
+    const res = await fetch('/api/search_airplanes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        departure_location: dep_loc,
+        arrival_location: arr_loc,
+        departure_date: dep_date
+      })
+    });
+    
+    const data = await res.json();
+    container.innerHTML = '';
+    
+    if (data.error) {
+      container.innerHTML = `<p class="no-results">${data.error}</p>`;
+      showModal('Error', data.error, 'error');
+      return;
     }
     
-    function closeModal() {
-      document.getElementById('modalOverlay').style.display = 'none';
-    }
-
-    document.getElementById('airplane-search-form').addEventListener('submit', async function (e) {
-      e.preventDefault();
-      const dep_loc = document.getElementById('departure_location').value;
-      const arr_loc = document.getElementById('arrival_location').value;
-      const dep_date = document.getElementById('departure_date').value;
-
-      try {
-        const res = await fetch('/api/search_airplanes', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            departure_location: dep_loc, 
-            arrival_location: arr_loc,
-            departure_date: dep_date
-          })
-        });
-
-        const data = await res.json();
-        const container = document.getElementById('results-container');
-        container.innerHTML = '';
-
-        if (data.error) {
-          container.innerHTML = `<p class="no-results">${data.error}</p>`;
-          showModal('Error', data.error, 'error');
-          return;
-        }
-        
-        const airplanes = data.results;
-        if (!airplanes || !airplanes.length) {
-          container.innerHTML = `<p class="no-results">No airplanes found for this route and date.</p>`;
-          showModal('No Results', 'No airplanes found for this route and date.', 'info');
-          return;
-        }
-
-        // Build table
-        let html = '<div class="table-container"><table><thead><tr>'
-          + '<th>Airplane ID</th><th>Airplane Name</th>'
-          + '<th>Departure</th><th>Arrival</th>'
-          + '<th>From</th><th>To</th>'
-          + '<th>Available Seats</th><th>Price (₹)</th>'
-          + '<th>Actions</th>'
-          + '</tr></thead><tbody>';
-          
-        airplanes.forEach(a => {
-          html += `<tr>
-                <td>${a.airplane_id}</td>
-                <td>${a.name}</td>
-                <td>${formatDateTime(a.departure_date, a.departure_time)}</td>
-                <td>${formatDateTime(a.arrival_date, a.arrival_time)}</td>
-                <td>${a.departure_location}</td>
-                <td>${a.arrival_location}</td>
-                <td>${a.available_seats}</td>
-                <td>₹${a.price}</td>
-                <td>
-                  <button class="btn-book" onclick="bookAirplane(${a.arf_pkey})">Book</button>
-                </td>
-              </tr>`;
-        });
-        
-        html += '</tbody></table></div>';
-        container.innerHTML = html;
-        
-        showModal('Success', 'Search completed successfully!', 'success');
-      } catch (error) {
-        showModal('Error', 'An error occurred while searching for airplanes. Please try again.', 'error');
-        console.error('Error:', error);
-      }
-    });
-
-    // Helper function to format date and time
-    function formatDateTime(date, time) {
-      const dateObj = new Date(date);
-      const formattedDate = dateObj.toLocaleDateString('en-US', { 
-        day: 'numeric', 
-        month: 'short', 
-        year: 'numeric' 
-      });
-      return `${formattedDate}<br>${time}`;
-    }
-
-    // Function to handle train booking
-    function bookAirplane(arf_pkey) {
-      showModal('Booking', `Would you like to proceed with booking airplane #${arf_pkey}?`, 'info');
-      
-      // Replace modal actions with confirm/cancel
-      const modalActions = document.querySelector('.modal-actions');
-      modalActions.innerHTML = `
-        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-        <button class="btn btn-primary" onclick="confirmBooking(${arf_pkey})">Confirm</button>
+    const airplanes = data.results;
+    if (!airplanes || !airplanes.length) {
+      container.innerHTML = `
+        <div class="no-results">
+          <i class="fas fa-search" style="font-size: 2rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+          <p>No airplanes found for this route and date.</p>
+          <p>Try different locations or dates.</p>
+        </div>
       `;
+      showModal('No Results', 'No airplanes found for this route and date.', 'info');
+      return;
     }
+    
+    let html = `
+      <h2 class="results-title">${airplanes.length} Airplanes Found</h2>
+      <p class="results-subtitle">From ${dep_loc} to ${arr_loc} on ${formatDateForDisplay(dep_date)}</p>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Airplane</th>
+              <th>Departure</th>
+              <th>Arrival</th>
+              <th>From</th>
+              <th>To</th>
+              <th>Seats</th>
+              <th>Price</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+    
+    airplanes.forEach(a => {
+      html += `
+        <tr>
+          <td>
+            <div class="airplane-info">
+              <div class="airplane-id">${a.airplane_id}</div>
+              <div class="airplane-name">${a.name}</div>
+            </div>
+          </td>
+          <td>${formatDateTime(a.departure_date, a.departure_time)}</td>
+          <td>${formatDateTime(a.arrival_date, a.arrival_time)}</td>
+          <td>${a.departure_location}</td>
+          <td>${a.arrival_location}</td>
+          <td>${a.available_seats}</td>
+          <td>₹${a.price}</td>
+          <td>
+            <button class="btn-book" onclick="bookAirplane(${a.arf_pkey})">
+              <i class="fas fa-ticket-alt"></i> Book
+            </button>
+          </td>
+        </tr>
+      `;
+    });
+    
+    html += `
+          </tbody>
+        </table>
+      </div>
+    `;
+    
+    container.innerHTML = html;
+    
+    // Style results title and subtitle
+    document.querySelector('.results-title').style.cssText = `
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--primary-dark);
+    `;
+    document.querySelector('.results-subtitle').style.cssText = `
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    `;
+    
+    // Style airplane info cells
+    const airplaneInfoCells = document.querySelectorAll('.airplane-info');
+    airplaneInfoCells.forEach(cell => {
+      cell.style.cssText = `
+        display: flex;
+        flex-direction: column;
+      `;
+      cell.querySelector('.airplane-id').style.cssText = `
+        font-weight: 600;
+        color: var(--primary-dark);
+      `;
+      cell.querySelector('.airplane-name').style.cssText = `
+        font-size: 0.9rem;
+        color: var(--text-muted);
+      `;
+    });
+    
+    showModal('Success', 'Search completed successfully!', 'success');
+  } catch (error) {
+    showModal('Error', 'An error occurred while searching for airplanes. Please try again.', 'error');
+    console.error('Error:', error);
+    container.innerHTML = `
+      <div class="no-results">
+        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; color: var(--danger); margin-bottom: 1rem;"></i>
+        <p>An error occurred while searching for airplanes.</p>
+        <p>Please try again later.</p>
+      </div>
+    `;
+  }
+});
 
-    // Function to confirm booking - redirects to booking page
-    function confirmBooking(arf_pkey) {
-      window.location.href = `/booking?type=airplane&arf_pkey=${encodeURIComponent(arf_pkey)}&user_id=${encodeURIComponent(user_id)}`;
-    }
+function formatDateTime(date, time) {
+  const dateObj = new Date(date);
+  const formattedDate = dateObj.toLocaleDateString('en-US', { 
+    day: 'numeric', month: 'short', year: 'numeric' 
+  });
+  return `
+    <div class="datetime">
+      <div class="date">${formattedDate}</div>
+      <div class="time">${time}</div>
+    </div>
+  `;
+}
+
+function formatDateForDisplay(dateString) {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', { 
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' 
+  });
+}
+
+function bookAirplane(arf_pkey) {
+  showModal('Booking Confirmation', `Would you like to proceed with booking this airplane?`, 'info');
+  
+  const modalActions = document.querySelector('.modal-actions');
+  modalActions.innerHTML = `
+    <button class="btn btn-secondary" onclick="closeModal()">
+      <i class="fas fa-times"></i> Cancel
+    </button>
+    <button class="btn btn-primary" onclick="confirmBooking(${arf_pkey})">
+      <i class="fas fa-check"></i> Confirm
+    </button>
+  `;
+}
+
+function confirmBooking(arf_pkey) {
+  window.location.href = `/booking?type=airplane&arf_pkey=${encodeURIComponent(arf_pkey)}&user_id=${encodeURIComponent(user_id)}`;
+}
