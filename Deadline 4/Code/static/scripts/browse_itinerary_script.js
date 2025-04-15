@@ -1,12 +1,9 @@
-
-
-// --- Appended from HTML ---
+// Get URL parameters
 const params = new URLSearchParams(window.location.search);
 const user_id = params.get("user_id");
 
 // Custom modal functions
 function showModal(title, message, type = 'success') {
-  const modal = document.getElementById('modal');
   const modalOverlay = document.getElementById('modalOverlay');
   const modalTitle = document.getElementById('modalTitle');
   const modalContent = document.getElementById('modalContent');
@@ -53,6 +50,18 @@ function closeModal() {
 
 document.getElementById('itinerary-search-form').addEventListener('submit', async function (e) {
   e.preventDefault();
+  
+  // Show loading state
+  const container = document.getElementById('results-container');
+  container.innerHTML = `
+    <div class="loading-state">
+      <svg class="spinner" width="40" height="40" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></circle>
+      </svg>
+      <p>Searching for itineraries...</p>
+    </div>
+  `;
+  
   const dest_city = document.getElementById('destination_city').value;
   const dest_state = document.getElementById('destination_state').value;
   const dest_country = document.getElementById('destination_country').value;
@@ -69,31 +78,55 @@ document.getElementById('itinerary-search-form').addEventListener('submit', asyn
     });
 
     const data = await res.json();
-    const container = document.getElementById('results-container');
     container.innerHTML = '';
 
     if (data.error) {
-      container.innerHTML = `<p class="no-results">${data.error}</p>`;
+      container.innerHTML = `
+        <div class="error-message">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="15" y1="9" x2="9" y2="15"></line>
+            <line x1="9" y1="9" x2="15" y2="15"></line>
+          </svg>
+          <p class="no-results">${data.error}</p>
+        </div>`;
       showModal('Error', data.error, 'error');
       return;
     }
 
     const itineraries = data.results;
     if (!itineraries || !itineraries.length) {
-      container.innerHTML = `<p class="no-results">No itineraries found for this location.</p>`;
+      container.innerHTML = `
+        <div class="empty-state">
+          <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          <p class="no-results">No itineraries found for this location. Try a different destination.</p>
+        </div>`;
       showModal('No Results', 'No itineraries found for this location.', 'info');
       return;
     }
 
     // Build table
-    let html = '<div class="table-container"><table><thead><tr>'
-      + '<th>Description</th>'
-      + '<th>Location</th>'
-      + '<th>Duration</th>'
-      + '<th>Price</th>'
-      + '<th>Rating</th>'
-      + '<th>Actions</th>'
-      + '</tr></thead><tbody>';
+    let html = `
+      <div class="results-header">
+        <h3>Found ${itineraries.length} itineraries for ${dest_city}, ${dest_state}, ${dest_country}</h3>
+      </div>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>Location</th>
+              <th>Duration</th>
+              <th>Price</th>
+              <th>Rating</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>`;
 
     itineraries.forEach(t => {
       html += `<tr>
@@ -104,16 +137,15 @@ document.getElementById('itinerary-search-form').addEventListener('submit', asyn
             <td>${renderStars(t.avg_rating, t.num_rating)}</td>
             <td>
               <div class="actions">
-                  <a href="/booking?type=itinerary&itinerary_id=${encodeURIComponent(t.itinerary_id)}&user_id=${encodeURIComponent(user_id)}" class="btn-book">Book</a>
-                  <button class="btn-show-reviews" data-itinerary-id="${t.itinerary_id}">Show Reviews</button>
+                <a href="/booking?type=itinerary&itinerary_id=${encodeURIComponent(t.itinerary_id)}&user_id=${encodeURIComponent(user_id)}" class="btn-book">Book</a>
+                <button class="btn-show-reviews" data-itinerary-id="${t.itinerary_id}">Show Reviews</button>
               </div>
             </td>
-
           </tr>
           <tr id="reviews-${t.itinerary_id}" class="reviews-row hidden">
-              <td colspan="6">
-                  <div class="reviews-container"></div>
-              </td>
+            <td colspan="6">
+              <div class="reviews-container"></div>
+            </td>
           </tr>`;
     });
 
@@ -123,6 +155,15 @@ document.getElementById('itinerary-search-form').addEventListener('submit', asyn
     showModal('Success', 'Search completed successfully!', 'success');
   } catch (error) {
     console.error('Error:', error);
+    container.innerHTML = `
+      <div class="error-message">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="15" y1="9" x2="9" y2="15"></line>
+          <line x1="9" y1="9" x2="15" y2="15"></line>
+        </svg>
+        <p class="error">Failed to search itineraries. Please try again.</p>
+      </div>`;
     showModal('Error', 'An error occurred while searching for itineraries. Please try again.', 'error');
   }
 });
@@ -130,54 +171,66 @@ document.getElementById('itinerary-search-form').addEventListener('submit', asyn
 // Handle "Show Reviews" button clicks
 document.addEventListener('click', function(e) {
   if (e.target.classList.contains('btn-show-reviews')) {
-      const button = e.target;
-      const itineraryId = button.getAttribute('data-itinerary-id');
-      const reviewsRow = document.getElementById(`reviews-${itineraryId}`);
-      const reviewsContainer = reviewsRow.querySelector('.reviews-container');
+    const button = e.target;
+    const itineraryId = button.getAttribute('data-itinerary-id');
+    const reviewsRow = document.getElementById(`reviews-${itineraryId}`);
+    const reviewsContainer = reviewsRow.querySelector('.reviews-container');
 
-      if (reviewsRow.classList.contains('hidden')) {
-          // Show reviews
-          if (!reviewsContainer.innerHTML.trim()) {
-              // Load reviews if not already loaded
-              loadReviews(itineraryId, reviewsContainer);
-          }
-          reviewsRow.classList.remove('hidden');
-          button.textContent = 'Hide Reviews';
-      } else {
-          // Hide reviews
-          reviewsRow.classList.add('hidden');
-          button.textContent = 'Show Reviews';
+    if (reviewsRow.classList.contains('hidden')) {
+      // Show reviews
+      if (!reviewsContainer.innerHTML.trim()) {
+        // Load reviews if not already loaded
+        loadReviews(itineraryId, reviewsContainer);
       }
+      reviewsRow.classList.remove('hidden');
+      button.textContent = 'Hide Reviews';
+    } else {
+      // Hide reviews
+      reviewsRow.classList.add('hidden');
+      button.textContent = 'Show Reviews';
+    }
   }
 });
 
 // Function to fetch and display reviews
 async function loadReviews(itineraryId, container) {
   try {
-      container.innerHTML = '<p>Loading reviews...</p>';
-      const res = await fetch('/api/get_reviews', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ item_id: itineraryId, item_type: 'itinerary' })
-      });
-      const data = await res.json();
+    container.innerHTML = `
+      <div class="loading-reviews">
+        <svg class="spinner" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></circle>
+        </svg>
+        <p>Loading reviews...</p>
+      </div>`;
+      
+    const res = await fetch('/api/get_reviews', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ item_id: itineraryId, item_type: 'itinerary' })
+    });
+    
+    const data = await res.json();
 
-      if (data.error) {
-          container.innerHTML = `<p class="error">${data.error}</p>`;
-          return;
-      }
+    if (data.error) {
+      container.innerHTML = `<p class="error">${data.error}</p>`;
+      return;
+    }
 
-      const reviews = data.results;
-      if (!reviews || !reviews.length) {
-          container.innerHTML = `<p class="no-reviews">No reviews yet.</p>`;
-          return;
-      }
+    const reviews = data.results;
+    if (!reviews || !reviews.length) {
+      container.innerHTML = `
+        <div class="empty-reviews">
+          <p class="no-reviews">No reviews yet for this itinerary.</p>
+        </div>`;
+      return;
+    }
 
-      const ul = document.createElement('ul');
-      ul.className = 'reviews-list';
-      reviews.forEach(review => {
-          const li = document.createElement('li');
-          li.textContent = review.comment; // Safely set text content
+    const ul = document.createElement('ul');
+    ul.className = 'reviews-list';
+    
+    reviews.forEach(review => {
+      const li = document.createElement('li');
+      li.textContent = review.comment; // Safely set text content
           ul.appendChild(li);
       });
       container.innerHTML = ''; // Clear loading message
