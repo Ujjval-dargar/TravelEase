@@ -22,7 +22,7 @@ app = Flask(__name__)
 db_config = {
     'host': 'localhost',
     'user': 'root',
-    'password': 'Ujjval@2005',
+    'password': 'root',
     'database': 'TravelEase'
 }
 
@@ -1620,6 +1620,109 @@ def get_reviews():
 
     except mysql.connector.Error as err:
         app.logger.error(f"Itinerary search error: {err}")
+        return jsonify({'error': 'Server error'}), 500
+    
+@app.route('/api/add_review', methods=['POST'])
+def add_review():
+    try:
+        # Get JSON data
+        data = request.get_json()
+        if not data:
+            return jsonify({"success": False, "error": "No data provided"}), 400
+
+        # Extract fields
+        booking_id = data.get('booking_id')
+        user_id = data.get('user_id')
+        comment = data.get('comment')
+        rating = data.get('rating')
+        item_type = data.get('item_type')
+
+        # Validate input
+        if not (all([booking_id, user_id, item_type]) and any( [comment, rating] )):
+            return jsonify({"success": False, "error": "Missing required fields"}), 400
+
+        try:
+            booking_id = int(booking_id)
+            user_id = int(user_id)
+            rating = int(rating)
+        except (ValueError, TypeError):
+            return jsonify({"success": False, "error": "Invalid booking_id, user_id, or rating"}), 400
+        
+        if item_type not in ['Hotel', 'Itinerary']:
+            return jsonify({"success": False, "error": "Invalid item_type. Must be 'Hotel' or 'Itinerary'"}), 400
+
+        # Connect to the database
+        connection = mysql.connector.connect(**db_config)
+        cursor = connection.cursor(dictionary=True)
+
+        # Check if review already exists
+        cursor.execute(
+            """
+            SELECT * FROM reviews 
+            WHERE booking_id = %s
+            """,
+            (booking_id, )
+        )
+        existing_review = cursor.fetchone()
+        if existing_review:
+            cursor.close()
+            connection.close()
+            return jsonify({"success": False, "error": "Review already submitted for this booking"}), 400
+
+        item_id = None
+        if item_type == 'Hotel':
+            # Replace 'Hotel_Reservation' with your actual table name
+            cursor.execute(
+                """
+                SELECT hotel_id FROM H_Book_Includes 
+                WHERE booking_id = %s
+                """,
+                (booking_id,)
+            )
+            result = cursor.fetchone()
+            if result:
+                item_id = result['hotel_id']
+            else:
+                cursor.close()
+                connection.close()
+                return jsonify({"success": False, "error": "Hotel not found for this booking"}), 404
+        elif item_type == 'Itinerary':
+            # Replace 'Itinerary_Reservation' with your actual table name
+            cursor.execute(
+                """
+                SELECT itinerary_id FROM I_Book_Includes 
+                WHERE booking_id = %s
+                """,
+                (booking_id,)
+            )
+
+            result = cursor.fetchone()
+            if result:
+                item_id = result['itinerary_id']
+            else:
+                cursor.close()
+                connection.close()
+                return jsonify({"success": False, "error": "Itinerary not found for this booking"}), 404
+        
+
+        # Insert the review
+        cursor.execute(
+            """
+            INSERT INTO reviews (comment, rating, booking_id, item_type, item_id)
+            VALUES (%s, %s, %s, %s, %s)
+            """,
+            (comment.strip(), rating, booking_id, item_type, item_id)
+        )
+        connection.commit()
+
+        # Close the database connection
+        cursor.close()
+        connection.close()
+
+        return jsonify({"success": True}), 200
+
+    except mysql.connector.Error as err:
+        app.logger.error(f"Review Add error: {err}")
         return jsonify({'error': 'Server error'}), 500
 
 if __name__ == '__main__':

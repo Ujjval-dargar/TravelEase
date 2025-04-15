@@ -124,7 +124,9 @@
                             <td>{{ b.booking_date.strftime('%Y-%m-%d') }}</td>
                             <td>
                                 {% if b.transport_type == 'Hotel' or b.transport_type == 'Itinerary' %}
-                                    <a class="btn btn-primary btn-sm">Give Review</a>
+                                <button class="btn btn-primary btn-sm give-review-btn" 
+                                data-booking-id="{{ b.booking_id }}"
+                                data-item-type="{{ b.transport_type }}">Give Review</button>
                                 {% else %}
                                     —
                                 {% endif %}
@@ -141,6 +143,24 @@
         </div>
     </div>
 
+    <div id="reviewModal" class="modal">
+        <div class="modal-content">
+            <span class="close">×</span>
+            <h2>Write a Review</h2>
+            <form id="reviewForm">
+                <div class="star-rating">
+                    <span class="star" data-value="1">★</span>
+                    <span class="star" data-value="2">★</span>
+                    <span class="star" data-value="3">★</span>
+                    <span class="star" data-value="4">★</span>
+                    <span class="star" data-value="5">★</span>
+                </div>
+                <input type="hidden" id="rating" name="rating" value="0">
+                <textarea id="reviewText" placeholder="Enter your review"></textarea>
+                <button type="submit" class="btn btn-primary">Submit Review</button>
+            </form>
+        </div>
+    </div>
     
     <script src="{{ url_for('static', filename='scripts/profile_script.js') }}"></script>
 </body>
