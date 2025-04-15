@@ -31,7 +31,7 @@ app = Flask(__name__)
 db_config = {
     'host': 'localhost',
     'user': 'root',
-    'password': '26april2005',
+    'password': 'root',
     'database': 'TravelEase'
 }
 
@@ -1763,6 +1763,7 @@ def get_reviews():
 
         cursor.execute(query, (item_id, item_type))
         raw_results = cursor.fetchall()
+        print(raw_results)
         cursor.close()
         conn.close()
 
@@ -1889,6 +1890,50 @@ def add_review():
         app.logger.error(f"Review Add error: {err}")
         return jsonify({'error': 'Server error'}), 500
 
+@app.route('/api/update_profile', methods=['POST'])
+def update_profile():
+    data = request.get_json()
+    user_id = data.get('user_id')
+    first_name = data.get('first_name')
+    last_name = data.get('last_name')
+    email = data.get('email')
+    mobile_number = data.get('mobile_number')
+
+    # Basic validation
+    if not all([user_id, first_name, last_name, email]):
+        return jsonify({'success': False, 'error': 'Missing required fields'}), 400
+    
+    connection = mysql.connector.connect(**db_config)
+
+    try:
+        cursor = connection.cursor()
+        
+        # Check if the email is already used by another user
+        cursor.execute("SELECT customer_id FROM customer WHERE email = %s AND customer_id != %s", (email, user_id))
+        if cursor.fetchone():
+            return jsonify({'success': False, 'error': 'Email is already in use'}), 400
+        
+        # Update customer profile
+        update_query = """
+            UPDATE customer
+            SET first_name = %s, last_name = %s, email = %s, mobile_number = %s
+            WHERE customer_id = %s
+        """
+        cursor.execute(update_query, (first_name, last_name, email, mobile_number, user_id))
+        
+        # Check if any rows were affected
+        if cursor.rowcount == 0:
+            return jsonify({'success': False, 'error': 'User not found'}), 404
+        
+        connection.commit()
+        cursor.close()
+        connection.close()
+        
+        return jsonify({'success': True}), 200
+    
+    except Exception as e:
+        print(str(e))
+        return jsonify({"success": False, "error": str(e)})
 
 if __name__ == '__main__':
     app.run(debug=True)
