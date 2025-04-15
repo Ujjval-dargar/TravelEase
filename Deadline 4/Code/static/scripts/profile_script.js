@@ -14,12 +14,55 @@ navLinks.forEach(link => {
 
 // Handle "Give Review" button clicks
 document.querySelector('.table-container').addEventListener('click', function(e) {
+    // Existing event listener for review button
     if (e.target.classList.contains('give-review-btn')) {
         const bookingId = e.target.getAttribute('data-booking-id');
         const itemType = e.target.getAttribute('data-item-type');
         openReviewModal(bookingId, itemType);
     }
+    // New event handler for details button
+    if (e.target.classList.contains('show-details-btn')) {
+        const bookingId = e.target.getAttribute('data-booking-id');
+        openDetailsModal(bookingId);
+    }
 });
+
+// New function to handle showing booking details
+// Function to fetch booking details and display them
+function openDetailsModal(bookingId) {
+    fetch(`/api/booking_full_details?booking_id=${bookingId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Network response was not ok " + response.statusText);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                const details = data.booking_details;
+                const type = data.transport_type;
+
+                let message = `Type: ${type}\n\nDetails:\n`;
+
+                details.forEach((item, index) => {
+                    
+                    for (const key in item) {
+                        message += `${key}: ${item[key]}\n`;
+                    }
+                    message += `\n`;
+                });
+
+                alert(message); // Replace with modal if needed
+            } else {
+                alert("Error: " + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+            alert("Failed to fetch booking details. See console for more info.");
+        });
+}
+
 
 // Open the review modal, reset the textarea, and initialize stars
 function openReviewModal(bookingId, itemType) {
@@ -138,3 +181,6 @@ document.getElementById('reviewForm').addEventListener('submit', async function(
         alert('An error occurred while submitting the review.');
     }
 });
+
+
+

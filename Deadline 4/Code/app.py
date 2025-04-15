@@ -1,8 +1,8 @@
 from flask import *
 import mysql.connector
 
-
-from datetime import datetime, time, timedelta
+from datetime import datetime, date, timedelta
+from decimal import Decimal
 
 
 def format_time_field(value):
@@ -16,13 +16,22 @@ def format_time_field(value):
     else:
         return str(value)
 
+# Convert non-serializable types to JSON-serializable
+def serialize_record(record):
+    return {
+        key: (value.total_seconds() // 60 if isinstance(value, timedelta) else
+              value.isoformat() if isinstance(value, (datetime, date)) else
+              float(value) if isinstance(value, Decimal) else
+              value)
+        for key, value in record.items()
+    }
 
 app = Flask(__name__)
 
 db_config = {
     'host': 'localhost',
     'user': 'root',
-    'password': 'root',
+    'password': 'Ujjval@2005',
     'database': 'TravelEase'
 }
 
@@ -192,7 +201,141 @@ def profile():
                            customer=user,
                            bookings=bookings)
 
+@app.route('/api/booking_full_details', methods=['GET'])
+def get_booking_full_details():
+    booking_id = request.args.get('booking_id')
+    if not booking_id:
+        return jsonify({'success': False, 'error': 'No booking_id provided'}), 400
 
+    conn = mysql.connector.connect(**db_config)
+    if conn is None:
+        return jsonify({'success': False, 'error': 'Database connection error'}), 500
+
+    try:
+        cursor = conn.cursor(dictionary=True)
+
+        # First, get the transport type from the Booking table.
+        transport_query = "SELECT transport_type FROM Booking WHERE booking_id = %s"
+        cursor.execute(transport_query, (booking_id,))
+        booking = cursor.fetchone()
+
+        if not booking:
+            return jsonify({'success': False, 'error': 'Booking not found'}), 404
+
+        transport_type = booking['transport_type']
+        details = None
+
+        # Execute the detailed query based on the transport type.
+        if transport_type == 'Airplane':
+            query = """
+                SELECT 
+                    Booking_id,
+                    name,
+                    arrival_location,
+                    arrival_time,
+                    arrival_date,
+                    departure_location,
+                    departure_time,
+                    departure_date,
+                    tickets_booked,
+                    coupon_code,
+                    status,
+                    booking_date,
+                    TIMESTAMPDIFF ( minute, CONCAT(departure_date, " ", departure_time), CONCAT(arrival_date, " ", arrival_time) ) AS travel_time_min
+                FROM A_Route_Follows 
+                NATURAL JOIN A_Book_Includes 
+                NATURAL JOIN AirplaneRoute 
+                NATURAL JOIN Airplane
+                NATURAL JOIN Booking
+                    WHERE Booking_ID = %s
+            """
+            cursor.execute(query, (booking_id,))
+            details = cursor.fetchall()
+
+        elif transport_type == 'Train':
+            query = """
+                SELECT 
+                    Booking_id,
+                    name,
+                    arrival_location,
+                    arrival_time,
+                    arrival_date,
+                    departure_location,
+                    departure_time,
+                    departure_date,
+                    tickets_booked,
+                    coupon_code,
+                    status,
+                    booking_date,
+                    TIMESTAMPDIFF ( minute, CONCAT(departure_date, " ", departure_time), CONCAT(arrival_date, " ", arrival_time) ) AS travel_time_min
+                FROM T_Route_Follows 
+                NATURAL JOIN T_Book_Includes 
+                NATURAL JOIN TrainRoute 
+                NATURAL JOIN Train
+                NATURAL JOIN Booking
+                    WHERE Booking_ID = %s
+            """
+            cursor.execute(query, (booking_id,))
+            details = cursor.fetchall()
+
+        elif transport_type == 'Itinerary':
+            query = """
+                SELECT 
+                description,
+                duration_day, 
+                duration_night, 
+                destination_city,
+                destination_state,
+                destination_country,
+                itinerary_start_date,
+                DATE_ADD(itinerary_start_date, INTERVAL duration_day DAY) AS itinerary_end_date,
+                price 
+                FROM Itinerary 
+                NATURAL JOIN I_Book_Includes 
+                WHERE Booking_ID = %s
+            """
+            cursor.execute(query, (booking_id,))
+            details = cursor.fetchall()
+
+        elif transport_type == 'Hotel':
+            query = """
+                SELECT 
+                    name,
+                    hotel_description,
+                    location,
+                    check_in_date,
+                    check_out_date,
+                    room_booked,
+                    price_per_night
+
+                FROM Hotel 
+                NATURAL JOIN H_Book_Includes 
+                WHERE Booking_ID = %s
+            """
+            cursor.execute(query, (booking_id,))
+            details = cursor.fetchall()
+
+        else:
+            return jsonify({'success': False, 'error': 'Invalid transport type'}), 400
+
+        # Apply serialization to each record
+        serialized_details = [serialize_record(row) for row in details]
+
+        return jsonify({
+            'success': True,
+            'transport_type': transport_type,
+            'booking_details': serialized_details
+        }), 200
+
+
+    except Exception as err:
+        print("SQL error: {}".format(err))
+        return jsonify({'success': False, 'error': 'An error occurred while querying the database'}), 500
+
+    finally:
+        if cursor is not None:
+            cursor.close()
+        conn.close()
 
 
 @app.route('/A_transport_profile')
@@ -1626,7 +1769,8 @@ def get_reviews():
     except mysql.connector.Error as err:
         app.logger.error(f"Itinerary search error: {err}")
         return jsonify({'error': 'Server error'}), 500
-    
+
+
 @app.route('/api/add_review', methods=['POST'])
 def add_review():
     try:
@@ -1729,6 +1873,7 @@ def add_review():
     except mysql.connector.Error as err:
         app.logger.error(f"Review Add error: {err}")
         return jsonify({'error': 'Server error'}), 500
+
 
 if __name__ == '__main__':
     app.run(debug=True)

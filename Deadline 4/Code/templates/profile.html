@@ -123,14 +123,17 @@
                             </td>
                             <td>{{ b.booking_date.strftime('%Y-%m-%d') }}</td>
                             <td>
+                                <button class="btn btn-secondary btn-sm show-details-btn" data-booking-id="{{ b.booking_id }}">
+                                    Show Details
+                                </button>
                                 {% if b.transport_type == 'Hotel' or b.transport_type == 'Itinerary' %}
-                                <button class="btn btn-primary btn-sm give-review-btn" 
-                                data-booking-id="{{ b.booking_id }}"
-                                data-item-type="{{ b.transport_type }}">Give Review</button>
-                                {% else %}
-                                    —
+                                    <button class="btn btn-primary btn-sm give-review-btn" 
+                                        data-booking-id="{{ b.booking_id }}"
+                                        data-item-type="{{ b.transport_type }}">
+                                        Give Review
+                                    </button>
                                 {% endif %}
-                            </td>
+                            </td>                            
                             
                         </tr>
                         {% endfor %}
