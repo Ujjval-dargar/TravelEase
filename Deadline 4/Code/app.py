@@ -31,7 +31,7 @@ app = Flask(__name__)
 db_config = {
     'host': 'localhost',
     'user': 'root',
-    'password': 'root',
+    'password': '26april2005',
     'database': 'TravelEase'
 }
 
