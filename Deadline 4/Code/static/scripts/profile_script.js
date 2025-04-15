@@ -29,6 +29,7 @@ document.querySelector('.table-container').addEventListener('click', function(e)
 
 // New function to handle showing booking details
 // Function to fetch booking details and display them
+// Function to fetch booking details and display them in a modal
 function openDetailsModal(bookingId) {
     fetch(`/api/booking_full_details?booking_id=${bookingId}`)
         .then(response => {
@@ -41,26 +42,146 @@ function openDetailsModal(bookingId) {
             if (data.success) {
                 const details = data.booking_details;
                 const type = data.transport_type;
-
-                let message = `Type: ${type}\n\nDetails:\n`;
-
+                
+                // Prepare modal content
+                let modalContent = document.getElementById('detailsModalContent');
+                modalContent.innerHTML = ''; // Clear existing content
+                
+                // Create header section
+                const headerSection = document.createElement('div');
+                headerSection.className = 'detail-section';
+                headerSection.innerHTML = `
+                    <h3>Booking Information</h3>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">Type</div>
+                            <div class="detail-value">
+                                <span class="badge badge-info">
+                                    <i class="fas fa-${getIconForType(type)}"></i> ${type}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Booking ID</div>
+                            <div class="detail-value">#${bookingId}</div>
+                        </div>
+                    </div>
+                `;
+                modalContent.appendChild(headerSection);
+                
+                // Process each detail item
                 details.forEach((item, index) => {
+                    const section = document.createElement('div');
+                    section.className = 'detail-section';
                     
-                    for (const key in item) {
-                        message += `${key}: ${item[key]}\n`;
+                    // Create section title based on item type or index
+                    let sectionTitle = `${type} Details`;
+                    if (details.length > 1) {
+                        sectionTitle += ` (${index + 1})`;
                     }
-                    message += `\n`;
+                    
+                    section.innerHTML = `<h3>${sectionTitle}</h3>`;
+                    
+                    // Create grid for details
+                    const detailGrid = document.createElement('div');
+                    detailGrid.className = 'detail-grid';
+                    
+                    // Add each property to the grid
+                    for (const key in item) {
+                        // Format the key for display
+                        const formattedKey = key
+                            .replace(/_/g, ' ')
+                            .replace(/\b\w/g, l => l.toUpperCase());
+                        
+                        const detailItem = document.createElement('div');
+                        detailItem.className = 'detail-item';
+                        detailItem.innerHTML = `
+                            <div class="detail-label">${formattedKey}</div>
+                            <div class="detail-value">${formatValue(key, item[key])}</div>
+                        `;
+                        detailGrid.appendChild(detailItem);
+                    }
+                    
+                    section.appendChild(detailGrid);
+                    modalContent.appendChild(section);
                 });
-
-                alert(message); // Replace with modal if needed
+                
+                // Show the modal
+                document.getElementById('detailsModal').style.display = 'flex';
             } else {
-                alert("Error: " + data.error);
+                showNotification('Error: ' + data.error, 'error');
             }
         })
         .catch(error => {
             console.error('Fetch error:', error);
-            alert("Failed to fetch booking details. See console for more info.");
+            showNotification('Failed to fetch booking details', 'error');
         });
+}
+
+// Helper function to get icon for transport type
+function getIconForType(type) {
+    switch(type.toLowerCase()) {
+        case 'train': return 'train';
+        case 'airplane': return 'plane';
+        case 'hotel': return 'hotel';
+        case 'itinerary': return 'map-marked-alt';
+        default: return 'ticket-alt';
+    }
+}
+
+// Helper function to format values based on the key
+function formatValue(key, value) {
+    // Format dates
+    if (key.includes('date') && value) {
+        return new Date(value).toLocaleDateString();
+    }
+    
+    // Format currency
+    if (key.includes('amount') || key.includes('price') || key.includes('cost')) {
+        return '₹' + value;
+    }
+    
+    // Format status with badges
+    if (key === 'status' || key === 'payment_status') {
+        let badgeClass = 'badge';
+        let icon = 'info-circle';
+        
+        if (value === 'Confirmed' || value === 'Paid' || value === 'Completed') {
+            badgeClass += ' badge-success';
+            icon = 'check-circle';
+        } else if (value === 'Pending') {
+            badgeClass += ' badge-warning';
+            icon = 'clock';
+        } else if (value === 'Cancelled' || value === 'Failed') {
+            badgeClass += ' badge-danger';
+            icon = 'times-circle';
+        }
+        
+        return `<span class="${badgeClass}"><i class="fas fa-${icon}"></i> ${value}</span>`;
+    }
+    
+    return value || 'N/A';
+}
+
+// Function to show notifications
+function showNotification(message, type = 'success') {
+    const notification = document.getElementById('notificationPopup');
+    const icon = document.getElementById('notificationIcon');
+    const messageElement = document.getElementById('notificationMessage');
+    
+    // Set icon based on type
+    icon.className = type === 'success' ? 'fas fa-check-circle success' : 'fas fa-exclamation-circle error';
+    
+    // Set message
+    messageElement.textContent = message;
+    
+    // Show notification
+    notification.classList.add('show');
+    
+    // Hide after 3 seconds
+    setTimeout(() => {
+        notification.classList.remove('show');
+    }, 3000);
 }
 
 
@@ -134,7 +255,7 @@ window.addEventListener('click', function(e) {
     }
 });
 
-// Handle form submission
+// Handle review form submit
 document.getElementById('reviewForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     const bookingId = this.getAttribute('data-booking-id');
@@ -144,7 +265,7 @@ document.getElementById('reviewForm').addEventListener('submit', async function(
     const userId = new URLSearchParams(window.location.search).get('user_id');
 
     if (rating === '0') {
-        alert('Please select a rating.');
+        showNotification('Please select a rating', 'error');
         return;
     }
 
@@ -165,22 +286,34 @@ document.getElementById('reviewForm').addEventListener('submit', async function(
 
         const data = await response.json();
         if (data.success) {
-            alert('Review submitted successfully!');
+            showNotification('Review submitted successfully!', 'success');
             document.getElementById('reviewModal').style.display = 'none';
+            
             // Update the button to reflect submission
             const btn = document.querySelector(`.give-review-btn[data-booking-id="${bookingId}"]`);
-            btn.textContent = 'Review Submitted';
+            btn.innerHTML = '<i class="fas fa-check"></i> Reviewed';
             btn.classList.remove('btn-primary');
             btn.classList.add('btn-success');
             btn.disabled = true;
         } else {
-            alert('Failed to submit review: ' + data.error);
+            showNotification('Failed to submit review: ' + data.error, 'error');
         }
     } catch (error) {
         console.error('Error submitting review:', error);
-        alert('An error occurred while submitting the review.');
+        showNotification('An error occurred while submitting the review', 'error');
     }
 });
 
-
-
+// Global modal close functionality
+document.addEventListener('click', function(e) {
+    // Close button click
+    if (e.target.classList.contains('close') || e.target.classList.contains('close-modal')) {
+        const modalId = e.target.getAttribute('data-modal') || e.target.closest('.modal').id;
+        document.getElementById(modalId).style.display = 'none';
+    }
+    
+    // Click outside of modal content
+    if (e.target.classList.contains('modal')) {
+        e.target.style.display = 'none';
+    }
+});
