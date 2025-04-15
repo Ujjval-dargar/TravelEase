@@ -50,7 +50,7 @@
 }
 
 * {
-  margin: 0;
+  margin: 0px;
   padding: 0;
   box-sizing: border-box;
 }
@@ -268,6 +268,7 @@ tbody tr:hover {
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  margin: 10px;
 }
 
 .btn-book:hover,
@@ -276,7 +277,14 @@ tbody tr:hover {
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
 }
-
+.stars{
+  color: #fbbf24;
+  letter-spacing: 1px;
+}
+.btn-book{
+  padding-right: 22px;
+  padding-left: 22px;
+}
 /* Reviews row styling */
 .reviews-row {
   background-color: var(--bg-card);
