@@ -1,7 +1,7 @@
 from flask import *
 import mysql.connector
 
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, timedelta,time
 from decimal import Decimal
 
 
@@ -231,12 +231,12 @@ def get_booking_full_details():
                 SELECT 
                     Booking_id,
                     name,
-                    arrival_location,
                     arrival_time,
                     arrival_date,
-                    departure_location,
+                    arrival_location,
                     departure_time,
                     departure_date,
+                    departure_location,
                     tickets_booked,
                     coupon_code,
                     status,
