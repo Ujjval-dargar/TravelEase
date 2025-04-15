@@ -317,3 +317,45 @@ document.addEventListener('click', function(e) {
         e.target.style.display = 'none';
     }
 });
+
+// Open edit profile modal
+document.getElementById('editProfileBtn').addEventListener('click', function() {
+    document.getElementById('editProfileModal').style.display = 'flex';
+});
+
+// Handle edit profile form submission
+document.getElementById('editProfileForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData.entries());
+    const userId = new URLSearchParams(window.location.search).get('user_id');
+
+    try {
+        const response = await fetch('/api/update_profile', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ user_id: userId, ...data })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showNotification('Profile updated successfully!', 'success');
+
+            // Update displayed user info
+            document.querySelector('.user-meta h2').textContent = `${data.first_name} ${data.last_name}`;
+            document.querySelector('.user-meta span').textContent = data.email;
+            document.querySelector('.user-initials').textContent = data.first_name[0] + data.last_name[0];
+            document.querySelector('.contact-email').textContent = data.email;
+            document.querySelector('.mobile-number').textContent = data.mobile_number;
+            document.getElementById('editProfileModal').style.display = 'none';
+        } else {
+            showNotification('Failed to update profile: ' + result.error, 'error');
+        }
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        showNotification('An error occurred while updating the profile', 'error');
+    }
+});
