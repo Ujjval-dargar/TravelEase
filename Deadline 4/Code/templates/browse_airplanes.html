@@ -11,20 +11,53 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <header class="site-header">
-    <div class="header-container">
+  <!-- Sidebar Navigation -->
+<nav class="sidebar">
+  <div class="sidebar-header">
       <div class="logo">
-        <i class="fas fa-plane"></i>
-        <span>TravelEase</span>
+          <i class="fas fa-plane-departure"></i>
+          <span>TravelEase</span>
       </div>
-      <nav>
-        <a href="{{ url_for('profile') }}?user_id={{ user_id }}" class="nav-link">
-          <i class="fas fa-user"></i> My Profile
-        </a>
-      </nav>
-    </div>
-  </header>
-
+      <button class="mobile-toggle" id="sidebarToggle">
+          <i class="fas fa-bars"></i>
+      </button>
+  </div>
+  
+  <ul class="nav-menu">
+      <li class="nav-item">
+          <a href="{{ url_for('browse_itinerary') }}?user_id={{ user_id }}" class="nav-link">
+              <i class="fas fa-map-marked-alt"></i>
+              <span>Itineraries</span>
+          </a>
+      </li>
+      <li class="nav-item">
+          <a href="{{ url_for('browse_trains') }}?user_id={{ user_id }}" class="nav-link">
+              <i class="fas fa-train"></i>
+              <span>Trains</span>
+          </a>
+      </li>
+      <li class="nav-item">
+          <a href="{{ url_for('browse_airplanes') }}?user_id={{ user_id }}" class="nav-link">
+              <i class="fas fa-plane"></i>
+              <span>Flights</span>
+          </a>
+      </li>
+      <li class="nav-item">
+          <a href="{{ url_for('browse_hotels') }}?user_id={{ user_id }}" class="nav-link">
+              <i class="fas fa-hotel"></i>
+              <span>Hotels</span>
+          </a>
+      </li>
+  </ul>
+  
+  <div class="sidebar-footer">
+      <a href="{{ url_for('profile') }}?user_id={{ user_id }}" class="profile-btn">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Profile</span>
+      </a>
+  </div>
+</nav>
+  
   <main>
     <div class="container">
       <div class="page-header">

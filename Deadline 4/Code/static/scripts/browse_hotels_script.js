@@ -1,6 +1,25 @@
 const params = new URLSearchParams(window.location.search);
 const user_id = params.get("user_id");
 
+// Get current page URL path
+const currentPath = window.location.pathname;
+
+// Find all nav links
+const navLinks = document.querySelectorAll('.nav-link');
+
+// Check which nav link matches current path and add active class
+navLinks.forEach(link => {
+    const linkPath = new URL(link.href).pathname;
+    if (currentPath === linkPath) {
+        link.classList.add('active');
+    }
+});
+
+// Mobile toggle functionality
+document.getElementById('sidebarToggle')?.addEventListener('click', function() {
+    document.querySelector('.sidebar').classList.toggle('show');
+});
+
 document.getElementById('hotel-search-form').addEventListener('submit', async function (e) {
   e.preventDefault();
   
